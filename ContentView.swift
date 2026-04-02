@@ -2,7 +2,10 @@
 //  ContentView.swift
 //  GeoWCS
 //
-//  Created by Christopher Appiah-Thompson  on 1/4/2026.
+//  Created by Christopher Appiah-Thompson on 1/4/2026.
+//  Copyright © 2026 World Class Scholars. All rights reserved.
+//
+//  Developed under the leadership of Dr. Christopher Appiah-Thompson
 //
 
 import SwiftUI

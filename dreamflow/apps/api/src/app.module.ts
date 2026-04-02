@@ -1,3 +1,12 @@
+/*
+ * GeoWCS NestJS API - Main Application Module
+ * 
+ * Copyright © 2026 World Class Scholars. All rights reserved.
+ * Developed under the leadership of Dr. Christopher Appiah-Thompson
+ * 
+ * Real-time location sharing, geofence alerts, and safety coordination.
+ */
+
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule } from '@nestjs/throttler';

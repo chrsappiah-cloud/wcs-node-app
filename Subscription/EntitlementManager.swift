@@ -1,3 +1,11 @@
+//
+//  EntitlementManager.swift
+//  GeoWCS - Subscription Entitlement Management
+//
+//  Copyright © 2026 World Class Scholars. All rights reserved.
+//  Developed under the leadership of Dr. Christopher Appiah-Thompson
+//
+
 import StoreKit
 import SwiftUI
 

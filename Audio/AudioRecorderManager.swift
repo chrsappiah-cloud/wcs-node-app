@@ -1,3 +1,11 @@
+//
+//  AudioRecorderManager.swift
+//  GeoWCS - Audio Evidence Capture
+//
+//  Copyright © 2026 World Class Scholars. All rights reserved.
+//  Developed under the leadership of Dr. Christopher Appiah-Thompson
+//
+
 import AVFoundation
 import Combine
 import Foundation

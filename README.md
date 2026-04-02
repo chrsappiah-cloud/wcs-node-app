@@ -313,6 +313,20 @@ xcrun simctl launch "iPhone 17 Pro Max" com.wcs.GeoWCS
 
 ---
 
+## © Copyright & Attribution
+
+**GeoWCS Platform v1.0.0**
+
+© 2026 **World Class Scholars**
+
+**Developed and Led by**: Dr. Christopher Appiah-Thompson
+
+All rights reserved under the MIT License.
+
+This project represents cutting-edge work in real-time safety technology, designed to protect and empower individuals through secure location sharing and evidence capture.
+
+---
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

@@ -1,3 +1,11 @@
+//
+//  PushNotificationManager.swift
+//  GeoWCS - Apple Push Notifications
+//
+//  Copyright © 2026 World Class Scholars. All rights reserved.
+//  Developed under the leadership of Dr. Christopher Appiah-Thompson
+//
+
 import Combine
 import Foundation
 import UserNotifications

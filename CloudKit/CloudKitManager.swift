@@ -1,3 +1,11 @@
+//
+//  CloudKitManager.swift
+//  GeoWCS - CloudKit Synchronization
+//
+//  Copyright © 2026 World Class Scholars. All rights reserved.
+//  Developed under the leadership of Dr. Christopher Appiah-Thompson
+//
+
 import Foundation
 import CloudKit
 

@@ -1,3 +1,12 @@
+/*
+ * GeoWCS NestJS API - Bootstrap
+ * 
+ * Copyright © 2026 World Class Scholars. All rights reserved.
+ * Developed under the leadership of Dr. Christopher Appiah-Thompson
+ * 
+ * Enterprise-grade real-time safety platform backend.
+ */
+
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';

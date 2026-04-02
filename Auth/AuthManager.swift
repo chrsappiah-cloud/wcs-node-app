@@ -1,3 +1,11 @@
+//
+//  AuthManager.swift
+//  GeoWCS - Authentication & Session Management
+//
+//  Copyright © 2026 World Class Scholars. All rights reserved.
+//  Developed under the leadership of Dr. Christopher Appiah-Thompson
+//
+
 import AuthenticationServices
 import CryptoKit
 import Foundation
