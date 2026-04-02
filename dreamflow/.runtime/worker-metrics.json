@@ -1,0 +1,57 @@
+{
+  "startedAt": "2026-04-02T00:49:08.714Z",
+  "lastUpdatedAt": "2026-04-02T00:49:12.487Z",
+  "totals": {
+    "completed": 2,
+    "failed": 1,
+    "errored": 0,
+    "retried": 0,
+    "deadLettered": 1
+  },
+  "queues": {
+    "geofence": {
+      "completed": 1,
+      "failed": 1,
+      "errored": 0,
+      "retried": 0,
+      "deadLettered": 1,
+      "averageProcessingLatencyMs": 1,
+      "maxProcessingLatencyMs": 1
+    },
+    "presence": {
+      "completed": 0,
+      "failed": 0,
+      "errored": 0,
+      "retried": 0,
+      "deadLettered": 0,
+      "averageProcessingLatencyMs": 0,
+      "maxProcessingLatencyMs": 0
+    },
+    "notification": {
+      "completed": 1,
+      "failed": 0,
+      "errored": 0,
+      "retried": 0,
+      "deadLettered": 0,
+      "averageProcessingLatencyMs": 102,
+      "maxProcessingLatencyMs": 102
+    }
+  },
+  "reconnect": {
+    "activeOutageSince": null,
+    "totalRecoveries": 0,
+    "lastRecoveryLatencyMs": null,
+    "maxRecoveryLatencyMs": 0
+  },
+  "alerts": {
+    "dlqGrowthThreshold": {
+      "threshold": 5,
+      "windowMs": 60000,
+      "breaches": 0
+    },
+    "reconnectLatencyThreshold": {
+      "thresholdMs": 5000,
+      "breaches": 0
+    }
+  }
+}

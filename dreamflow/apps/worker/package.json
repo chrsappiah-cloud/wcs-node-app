@@ -1,0 +1,27 @@
+{
+  "name": "@dreamflow/worker",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start:dev": "cd ../.. && nest start worker --watch",
+    "build": "cd ../.. && nest build worker",
+    "lint": "echo 'add eslint config'",
+    "test": "jest --config ../../jest.config.ts --runInBand --testPathPattern=apps/worker/",
+    "test:redis": "RUN_REDIS_INTEGRATION=true npx jest --config ../../jest.config.ts --runInBand --runTestsByPath src/app.redis.integration.spec.ts --detectOpenHandles"
+  },
+  "dependencies": {
+    "@dreamflow/schemas": "0.1.0",
+    "@dreamflow/types": "0.1.0",
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/config": "^4.0.2",
+    "@nestjs/core": "^11.0.0",
+    "bullmq": "^5.48.1",
+    "ioredis": "^5.6.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.0",
+    "typescript": "^5.7.2"
+  }
+}

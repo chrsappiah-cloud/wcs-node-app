@@ -1,0 +1,15 @@
+{
+  "name": "@dreamflow/schemas",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "dependencies": {
+    "zod": "^3.24.4"
+  },
+  "scripts": {
+    "build": "tsc -p ../../tsconfig.json --noEmit",
+    "lint": "echo 'add lint rules for @dreamflow/schemas'",
+    "test": "jest --config ../../jest.config.ts --runInBand --testPathPattern=packages/schemas/"
+  }
+}

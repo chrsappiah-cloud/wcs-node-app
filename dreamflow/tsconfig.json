@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "ignoreDeprecations": "5.0",
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "jsx": "react-jsx",
+    "types": ["node", "jest"],
+    "baseUrl": ".",
+    "paths": {
+      "@dreamflow/types": ["packages/types/src"],
+      "@dreamflow/schemas": ["packages/schemas/src"],
+      "@dreamflow/api-client": ["packages/api-client/src"],
+      "@dreamflow/ui": ["packages/ui/src"]
+    }
+  }
+}

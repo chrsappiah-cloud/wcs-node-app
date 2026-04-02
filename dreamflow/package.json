@@ -1,0 +1,44 @@
+{
+  "name": "dreamflow",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run start:dev -w @dreamflow/api",
+    "dev:worker": "npm run start:dev -w @dreamflow/worker",
+    "dev:mobile": "npm run start -w @dreamflow/mobile",
+    "infra:up": "docker compose -f infrastructure/docker/docker-compose.yml up -d",
+    "infra:down": "docker compose -f infrastructure/docker/docker-compose.yml down",
+    "infra:logs": "docker compose -f infrastructure/docker/docker-compose.yml logs -f",
+    "deploy:azure": "./infrastructure/azure/deploy.sh",
+    "dlq": "node scripts/dlq-tool.mjs",
+    "dlq:list": "node scripts/dlq-tool.mjs list --limit 25",
+    "dlq:retain": "node scripts/dlq-tool.mjs retain --older-than-minutes 60 --limit 100",
+    "dlq:retain:remove": "node scripts/dlq-tool.mjs retain --older-than-minutes 60 --limit 100 --remove",
+    "dlq:purge": "node scripts/dlq-tool.mjs purge --limit 100",
+    "metrics:worker": "node scripts/worker-metrics.mjs",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "test:api:redis": "npm run test:redis -w @dreamflow/api",
+    "test:system:redis:reconnect:notification": "node scripts/full-system-redis-reconnect-notification-test.mjs",
+    "test:system:redis:reconnect:presence": "node scripts/full-system-redis-reconnect-presence-test.mjs",
+    "test:system:redis:reconnect": "node scripts/full-system-redis-reconnect-test.mjs",
+    "test:system:redis": "node scripts/full-system-redis-test.mjs",
+    "test:system:redis:failure": "node scripts/full-system-redis-failure-test.mjs",
+    "test:worker:redis": "npm run test:redis -w @dreamflow/worker",
+    "test:e2e:smoke": "node scripts/e2e-smoke.mjs --mode=local",
+    "test:e2e:smoke:redis": "node scripts/e2e-smoke.mjs --mode=redis"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.14.1",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  }
+}

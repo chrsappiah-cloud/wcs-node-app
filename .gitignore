@@ -1,0 +1,58 @@
+# Xcode
+build/
+DerivedData/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+.DS_Store
+xcuserdata/
+*.xcworkspace/xcuserdata/
+
+# Swift
+.build/
+.swiftpm/
+*.playground
+
+# CocoaPods
+Pods/
+Podfile.lock
+
+# NestJS / Node
+node_modules/
+*.log
+dist/
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+.nyc_output/
+
+# Build outputs
+*.app
+*.ipa
+
+# Audio recordings (local testing)
+Documents/GeoWCSRecordings/
+
+# CloudKit
+*.dcite
+
+# System
+*.pem
+*.key

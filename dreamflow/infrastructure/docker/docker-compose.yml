@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: dreamflow
+      POSTGRES_PASSWORD: dreamflow
+      POSTGRES_DB: dreamflow
+    ports:
+      - '5432:5432'
+
+  redis:
+    image: redis:7
+    ports:
+      - '6379:6379'
+
+  timescaledb:
+    image: timescale/timescaledb:latest-pg16
+    environment:
+      POSTGRES_USER: dreamflow
+      POSTGRES_PASSWORD: dreamflow
+      POSTGRES_DB: dreamflow_telemetry
+    ports:
+      - '5433:5432'

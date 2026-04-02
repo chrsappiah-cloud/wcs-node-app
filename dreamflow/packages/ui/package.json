@@ -1,0 +1,15 @@
+{
+  "name": "@dreamflow/ui",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "dependencies": {
+    "react": "^19.0.0"
+  },
+  "scripts": {
+    "build": "tsc -p ../../tsconfig.json --noEmit",
+    "lint": "echo 'add lint rules for @dreamflow/ui'",
+    "test": "jest --config ../../jest.config.ts --runInBand --testPathPattern=packages/ui/"
+  }
+}

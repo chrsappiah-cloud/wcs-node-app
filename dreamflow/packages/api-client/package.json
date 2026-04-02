@@ -1,0 +1,15 @@
+{
+  "name": "@dreamflow/api-client",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "dependencies": {
+    "@dreamflow/types": "0.1.0"
+  },
+  "scripts": {
+    "build": "tsc -p ../../tsconfig.json --noEmit",
+    "lint": "echo 'add lint rules for @dreamflow/api-client'",
+    "test": "jest --config ../../jest.config.ts --runInBand --testPathPattern=packages/api-client/"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "@dreamflow/types",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc -p ../../tsconfig.json --noEmit",
+    "lint": "echo 'add lint rules for @dreamflow/types'",
+    "test": "jest --config ../../jest.config.ts --runInBand --testPathPattern=packages/types/"
+  }
+}
