@@ -1,0 +1,38 @@
+name: DeArtWCS Focused Tests
+
+on:
+  workflow_dispatch:
+
+jobs:
+  dearts-sweep:
+    name: DeArtWCS Full Sweep
+    runs-on: macos-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run DeArtWCS focused tests
+        run: |
+          bash scripts/run-tests.sh dearts
+
+      - name: Upload DeArtWCS xcresult
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dearts-xcresult
+          path: build/test-results/DeArtsTests.xcresult
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload DeArtWCS logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dearts-logs
+          path: |
+            build/test-results/dearts-tests.log
+            build/test-results
+          if-no-files-found: warn
+          retention-days: 14

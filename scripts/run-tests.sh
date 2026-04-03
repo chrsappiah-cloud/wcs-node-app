@@ -7,7 +7,7 @@
 # Developed under the leadership of Dr. Christopher Appiah-Thompson
 #
 # Run XCTest suite with configurable test layers
-# Usage: ./run-tests.sh [unit|integration|ui|all|coverage]
+# Usage: ./run-tests.sh [unit|integration|ui|dearts|all|coverage]
 
 set -euo pipefail
 
@@ -19,18 +19,20 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-PROJECT="GeoWCS"
+PROJECT_PATH="${PROJECT_PATH:-/Applications/GeoWCS/GeoWCS.xcodeproj}"
 SCHEME="GeoWCS"
 CONFIGURATION="Debug"
 DEVICE="iPhone 17 Pro Max"
 PLATFORM="iOS Simulator"
+DESTINATION="platform=$PLATFORM,name=$DEVICE"
+UI_TEST_DESTINATION="$DESTINATION"  # overridden by prepare_simulator with stable UDID
 DERIVED_DATA_PATH="build/DerivedData"
 TEST_LOG_PATH="build/test-results"
 COVERAGE_REPORT_PATH="build/coverage"
 
 # Test types
 TEST_TYPE="${1:-all}"
-COVERAGE_ENABLED=false
+COVERAGE_ENABLED="NO"
 
 # Functions
 print_header() {
@@ -71,13 +73,16 @@ setup_environment() {
 
 run_unit_tests() {
     print_header "Running Unit Tests"
+    rm -rf "$TEST_LOG_PATH/UnitTests.xcresult"
     
     xcodebuild test \
-        -project "$PROJECT.xcodeproj" \
+        -project "$PROJECT_PATH" \
         -scheme "$SCHEME" \
         -configuration "$CONFIGURATION" \
+        -destination "$DESTINATION" \
         -derivedDataPath "$DERIVED_DATA_PATH" \
-        -testPlan "UnitTests" \
+        -only-testing:GeoWCSTests/CheckInTimerTests \
+        -only-testing:GeoWCSTests/SafetyEngineTests \
         -enableCodeCoverage "$COVERAGE_ENABLED" \
         -resultBundlePath "$TEST_LOG_PATH/UnitTests.xcresult" \
         2>&1 | tee "$TEST_LOG_PATH/unit-tests.log" || {
@@ -90,13 +95,15 @@ run_unit_tests() {
 
 run_integration_tests() {
     print_header "Running Integration Tests"
+    rm -rf "$TEST_LOG_PATH/IntegrationTests.xcresult"
     
     xcodebuild test \
-        -project "$PROJECT.xcodeproj" \
+        -project "$PROJECT_PATH" \
         -scheme "$SCHEME" \
         -configuration "$CONFIGURATION" \
+        -destination "$DESTINATION" \
         -derivedDataPath "$DERIVED_DATA_PATH" \
-        -testPlan "IntegrationTests" \
+        -only-testing:GeoWCSTests/TrackerIntegrationTests \
         -enableCodeCoverage "$COVERAGE_ENABLED" \
         -resultBundlePath "$TEST_LOG_PATH/IntegrationTests.xcresult" \
         2>&1 | tee "$TEST_LOG_PATH/integration-tests.log" || {
@@ -112,14 +119,17 @@ run_ui_tests() {
     
     # Ensure simulator is ready
     prepare_simulator
+    rm -rf "$TEST_LOG_PATH/UITests.xcresult"
     
     xcodebuild test \
-        -project "$PROJECT.xcodeproj" \
+        -project "$PROJECT_PATH" \
         -scheme "$SCHEME" \
         -configuration "$CONFIGURATION" \
         -derivedDataPath "$DERIVED_DATA_PATH" \
-        -destination "platform=$PLATFORM,name=$DEVICE" \
-        -testPlan "UITests" \
+        -destination "$UI_TEST_DESTINATION" \
+        -only-testing:GeoWCSUITests \
+        -parallel-testing-enabled NO \
+        -maximum-parallel-testing-workers 1 \
         -enableCodeCoverage "$COVERAGE_ENABLED" \
         -resultBundlePath "$TEST_LOG_PATH/UITests.xcresult" \
         2>&1 | tee "$TEST_LOG_PATH/ui-tests.log" || {
@@ -130,14 +140,87 @@ run_ui_tests() {
     print_success "UI tests completed"
 }
 
+run_dearts_tests() {
+    print_header "Running DeArtWCS Focused Test Sweep"
+    rm -rf "$TEST_LOG_PATH/DeArtsTests.xcresult"
+
+    xcodebuild test \
+        -project "$PROJECT_PATH" \
+        -scheme "$SCHEME" \
+        -configuration "$CONFIGURATION" \
+        -destination "$DESTINATION" \
+        -derivedDataPath "$DERIVED_DATA_PATH" \
+        -only-testing:GeoWCSTests/DeArtsWCSTDDScaffoldTests \
+        -only-testing:GeoWCSTests/DeArtsWCSAppTypesScaffoldTests \
+        -only-testing:GeoWCSTests/DeArtsWCSSeedModeIntegrationTests \
+        -only-testing:GeoWCSUITests/DeArtsWCSCriticalFlowsUITests \
+        -enableCodeCoverage "$COVERAGE_ENABLED" \
+        -resultBundlePath "$TEST_LOG_PATH/DeArtsTests.xcresult" \
+        2>&1 | tee "$TEST_LOG_PATH/dearts-tests.log" || {
+            print_error "DeArtWCS test sweep failed"
+            return 1
+        }
+
+    print_success "DeArtWCS focused tests completed"
+}
+
 prepare_simulator() {
     print_header "Preparing iOS Simulator"
-    
-    # Boot simulator if needed
-    xcrun simctl boot "$DEVICE" 2>/dev/null || true
-    sleep 3
-    
-    print_success "Simulator ready"
+
+    # Resolve the UDID of the first available "iPhone 17 Pro Max" simulator
+    local sim_udid
+    sim_udid=$(xcrun simctl list devices available -j \
+        | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+for rname,devices in d['devices'].items():
+    for dev in devices:
+        if dev['name'] == 'iPhone 17 Pro Max' and dev.get('isAvailable', False):
+            print(dev['udid'])
+            exit()
+" 2>/dev/null || true)
+
+    if [[ -z "$sim_udid" ]]; then
+        print_error "Could not find an available iPhone 17 Pro Max simulator"
+        return 1
+    fi
+
+    print_warning "Resetting simulator $sim_udid to clear stale state..."
+    xcrun simctl shutdown "$sim_udid" 2>/dev/null || true
+    sleep 1
+    xcrun simctl erase "$sim_udid"
+    sleep 2
+    xcrun simctl boot "$sim_udid"
+
+    # Wait until the simulator reaches Booted state (up to 60s)
+    local attempts=0
+    while [[ $attempts -lt 30 ]]; do
+        local state
+        state=$(xcrun simctl list devices -j \
+            | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+for rname,devices in d['devices'].items():
+    for dev in devices:
+        if dev['udid'] == '$sim_udid':
+            print(dev['state'])
+            exit()
+" 2>/dev/null || echo "Unknown")
+        if [[ "$state" == "Booted" ]]; then
+            break
+        fi
+        sleep 2
+        attempts=$((attempts + 1))
+    done
+
+    if [[ $attempts -ge 30 ]]; then
+        print_error "Simulator $sim_udid did not boot within 60s"
+        return 1
+    fi
+
+    # Export stable UDID-based destination for UI tests
+    UI_TEST_DESTINATION="id=$sim_udid"
+    print_success "Simulator $sim_udid ready"
 }
 
 generate_coverage_report() {
@@ -175,7 +258,7 @@ run_all_tests() {
         failed=$((failed + 1))
     fi
     
-    if [[ "$COVERAGE_ENABLED" == "true" ]]; then
+    if [[ "$COVERAGE_ENABLED" == "YES" ]]; then
         generate_coverage_report
     fi
     
@@ -186,11 +269,11 @@ run_performance_tests() {
     print_header "Running Performance Tests"
     
     xcodebuild test \
-        -project "$PROJECT.xcodeproj" \
+        -project "$PROJECT_PATH" \
         -scheme "$SCHEME" \
         -configuration "$CONFIGURATION" \
+        -destination "$DESTINATION" \
         -derivedDataPath "$DERIVED_DATA_PATH" \
-        -testPlan "PerformanceTests" \
         -resultBundlePath "$TEST_LOG_PATH/PerformanceTests.xcresult" \
         2>&1 | tee "$TEST_LOG_PATH/performance-tests.log" || {
             print_error "Performance tests failed"
@@ -213,24 +296,31 @@ lint_code() {
     fi
 }
 
+_extract_test_count() {
+    # Count "Test case '...' passed/failed" lines emitted by modern xcodebuild.
+    # Use awk so zero matches does not fail under set -e + pipefail.
+    local log="$1"
+    [[ -f "$log" ]] || { echo "0"; return; }
+    awk 'BEGIN { c=0 }
+         /^Test [Cc]ase '\''.*'\'' (passed|failed)/ { c++ }
+         END { print c }' "$log"
+}
+
 print_summary() {
     print_header "Test Summary"
-    
-    if [[ -f "$TEST_LOG_PATH/unit-tests.log" ]]; then
-        local unit_count=$(grep -c "Test Case" "$TEST_LOG_PATH/unit-tests.log" || echo "0")
-        print_success "Unit tests: $unit_count tests"
-    fi
-    
-    if [[ -f "$TEST_LOG_PATH/integration-tests.log" ]]; then
-        local integration_count=$(grep -c "Test Case" "$TEST_LOG_PATH/integration-tests.log" || echo "0")
-        print_success "Integration tests: $integration_count tests"
-    fi
-    
-    if [[ -f "$TEST_LOG_PATH/ui-tests.log" ]]; then
-        local ui_count=$(grep -c "Test Case" "$TEST_LOG_PATH/ui-tests.log" || echo "0")
-        print_success "UI tests: $ui_count tests"
-    fi
-    
+
+    local unit_count integration_count ui_count
+    local dearts_count
+    unit_count=$(_extract_test_count "$TEST_LOG_PATH/unit-tests.log")
+    integration_count=$(_extract_test_count "$TEST_LOG_PATH/integration-tests.log")
+    ui_count=$(_extract_test_count "$TEST_LOG_PATH/ui-tests.log")
+    dearts_count=$(_extract_test_count "$TEST_LOG_PATH/dearts-tests.log")
+
+    print_success "Unit tests:        $unit_count tests"
+    print_success "Integration tests: $integration_count tests"
+    print_success "UI tests:          $ui_count tests"
+    print_success "DeArtWCS tests:    $dearts_count tests"
+
     echo ""
     echo "Logs available at: $TEST_LOG_PATH"
     echo "Coverage reports: $COVERAGE_REPORT_PATH"
@@ -250,11 +340,14 @@ main() {
             ;;
         ui)
             setup_environment
-            prepare_simulator
             run_ui_tests
             ;;
+        dearts)
+            setup_environment
+            run_dearts_tests
+            ;;
         coverage)
-            COVERAGE_ENABLED=true
+            COVERAGE_ENABLED="YES"
             setup_environment
             run_all_tests
             generate_coverage_report

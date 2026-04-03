@@ -4,6 +4,8 @@
 
 GeoWCS implements a comprehensive XCTest/XCUITest testing infrastructure aligned with Apple's native testing ecosystem. This document describes the test strategy, architecture, and execution procedures.
 
+For the unified outside-in + contract-first + XCTest operating model, see `TESTING_FUSION_HANDBOOK.md`.
+
 ## Why XCTest/XCUITest?
 
 For native Swift iOS applications, XCTest is the authoritative choice because:
@@ -228,11 +230,17 @@ class MockCLRegion: CLRegion { }
 ./scripts/run-tests.sh all
 ```
 
+**Run DeArtWCS focused suite**:
+```bash
+./scripts/run-tests.sh dearts
+```
+
 **Run specific layer**:
 ```bash
 ./scripts/run-tests.sh unit          # Unit tests only
 ./scripts/run-tests.sh integration   # Integration tests only
 ./scripts/run-tests.sh ui            # UI tests only
+./scripts/run-tests.sh dearts        # DeArtWCS-focused tests only
 ./scripts/run-tests.sh coverage      # All tests + coverage
 ```
 
@@ -250,6 +258,23 @@ class MockCLRegion: CLRegion { }
 ### CI/CD Pipeline
 
 GitHub Actions workflow: `.github/workflows/ci-tests.yml`
+
+DeArtWCS-focused workflow: `.github/workflows/dearts-tests.yml`
+
+### DeArtWCS Focused Suite
+
+The DeArtWCS-focused suite runs a deterministic subset scoped to RokMaxCreative/DeArtsWCS:
+
+- `GeoWCSTests/DeArtsWCSTDDScaffoldTests`
+- `GeoWCSTests/DeArtsWCSAppTypesScaffoldTests`
+- `GeoWCSTests/DeArtsWCSSeedModeIntegrationTests`
+- `GeoWCSUITests/DeArtsWCSCriticalFlowsUITests`
+
+Deterministic UI mode is enabled by launch environment in UI tests:
+
+- `DEARTSWCS_UI_TEST_MODE=1`
+
+This mode seeds stable initial app data for reliable UI assertions.
 
 **Triggers**:
 - Push to master/develop/feature/*

@@ -1,0 +1,102 @@
+name: Testing Gates
+
+on:
+  pull_request:
+    branches: [master, develop]
+  push:
+    branches:
+      - master
+      - 'release/**'
+  workflow_dispatch:
+
+jobs:
+  unit-tests:
+    name: Unit Tests Gate
+    runs-on: macos-latest
+    env:
+      PROJECT_PATH: GeoWCS.xcodeproj
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run unit tests
+        run: bash scripts/run-tests.sh unit
+
+      - name: Upload unit logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-logs
+          path: build/test-results/unit-tests.log
+          if-no-files-found: warn
+          retention-days: 14
+
+  integration-tests:
+    name: Integration Tests Gate
+    runs-on: macos-latest
+    env:
+      PROJECT_PATH: GeoWCS.xcodeproj
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run integration tests
+        run: bash scripts/run-tests.sh integration
+
+      - name: Upload integration logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-logs
+          path: build/test-results/integration-tests.log
+          if-no-files-found: warn
+          retention-days: 14
+
+  contract-boundary-tests:
+    name: Contract Boundary Gate
+    runs-on: macos-latest
+    env:
+      PROJECT_PATH: GeoWCS.xcodeproj
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run contract-boundary gate
+        run: |
+          # Transitional gate: use boundary-oriented integration suite until
+          # explicit Contracts test target is introduced.
+          bash scripts/run-tests.sh integration
+
+      - name: Upload contract-boundary logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: contract-boundary-logs
+          path: build/test-results/integration-tests.log
+          if-no-files-found: warn
+          retention-days: 14
+
+  ui-smoke:
+    name: UI Smoke Gate
+    runs-on: macos-latest
+    needs: [unit-tests, integration-tests, contract-boundary-tests]
+    if: github.event_name == 'push' && (github.ref_name == 'master' || startsWith(github.ref_name, 'release/'))
+    env:
+      PROJECT_PATH: GeoWCS.xcodeproj
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run UI smoke tests
+        run: bash scripts/run-tests.sh ui
+
+      - name: Upload UI logs and results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-smoke-artifacts
+          path: |
+            build/test-results/ui-tests.log
+            build/test-results/UITests.xcresult
+          if-no-files-found: warn
+          retention-days: 14

@@ -174,6 +174,31 @@ refactor/auth-manager
 
 ## Testing
 
+### Required Testing Workflow
+
+Follow the fused testing model in `TESTING_FUSION_HANDBOOK.md` for all new features and fixes.
+
+Required local checks before opening a PR:
+
+```bash
+bash scripts/run-tests.sh unit
+bash scripts/run-tests.sh integration
+```
+
+When changing DeArtWCS / RokMaxCreative flows, also run:
+
+```bash
+bash scripts/run-tests.sh dearts
+```
+
+UI smoke tests are required on `master` / release merges and should be run locally for high-risk UI changes:
+
+```bash
+bash scripts/run-tests.sh ui
+```
+
+Regression rule: every production bug fix must include at least one test that fails before the fix and passes after it.
+
 ### Before Submitting
 
 ```bash
