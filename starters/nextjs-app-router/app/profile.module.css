@@ -1,0 +1,91 @@
+:root {
+  --bg: #0c1222;
+  --card: #121a2f;
+  --muted: #a7b0c2;
+  --text: #e9eef9;
+  --brand: #30c7ff;
+  --accent: #22d3a6;
+  --line: #243352;
+}
+
+.page {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 24px;
+  display: grid;
+  gap: 20px;
+  color: var(--text);
+}
+
+.hero,
+.card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0));
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 22px;
+}
+
+.hero h1 {
+  margin: 0 0 8px;
+  font-size: clamp(1.7rem, 3vw, 2.3rem);
+  color: var(--brand);
+}
+
+.hero p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.card h2 {
+  margin: 0 0 10px;
+  font-size: 1.15rem;
+  color: var(--accent);
+}
+
+.card p,
+.card li {
+  line-height: 1.6;
+}
+
+.card ul {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 8px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.button {
+  border: 1px solid var(--line);
+  color: var(--text);
+  background: #1a2440;
+  text-decoration: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: 0.2s ease;
+}
+
+.button:hover {
+  transform: translateY(-1px);
+  border-color: var(--brand);
+}
+
+@media (max-width: 760px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

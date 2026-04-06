@@ -54,12 +54,60 @@ wcs-node-app/
 ├── package.json              # Dependencies and scripts
 ├── README.md                 # This file
 ├── .gitignore               # Git ignore file
+├── starters/
+│   ├── nextjs-app-router/
+│   │   └── app/
+│   │       ├── page.tsx     # Next.js App Router profile page starter
+│   │       └── profile.module.css
+│   └── flutter/
+│       └── lib/
+│           ├── wcs_theme.dart
+│           └── wcs_profile_screen.dart
 ├── views/
 │   └── index.ejs            # Main EJS template with animations
 └── public/
     └── images/
         ├── workshop.jpg     # Workshop scene visualization
         └── dr-chris.jpg     # Profile image
+```
+
+## 🧩 Starter Kits
+
+This repository includes plug-and-play starters for web and mobile profile implementations.
+
+### Next.js App Router Starter
+- Path: `starters/nextjs-app-router/app/page.tsx`
+- Styles: `starters/nextjs-app-router/app/profile.module.css`
+- Usage:
+
+```bash
+# In a Next.js project (App Router)
+cp starters/nextjs-app-router/app/page.tsx <your-next-app>/app/page.tsx
+cp starters/nextjs-app-router/app/profile.module.css <your-next-app>/app/profile.module.css
+```
+
+### Flutter Starter
+- Path: `starters/flutter/lib/wcs_profile_screen.dart`
+- Theme: `starters/flutter/lib/wcs_theme.dart`
+- Add dependency in your Flutter app:
+
+```yaml
+dependencies:
+  flutter:
+    sdk: flutter
+  url_launcher: ^6.3.0
+```
+
+- Wire into your app:
+
+```dart
+import 'wcs_theme.dart';
+import 'wcs_profile_screen.dart';
+
+MaterialApp(
+  theme: WcsTheme.dark(),
+  home: const WcsProfileScreen(),
+);
 ```
 
 ## 🎯 Key Components
