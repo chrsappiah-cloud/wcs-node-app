@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="240" height="240" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+  <defs>
+    <linearGradient id="profileGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7c3aed;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <circle cx="120" cy="120" r="120" fill="url(#profileGradient)"/>
+  <circle cx="120" cy="84" r="42" fill="#e2e8f0"/>
+  <rect x="78" y="128" width="84" height="72" rx="12" fill="#e2e8f0"/>
+  <circle cx="120" cy="120" r="112" fill="none" stroke="#06b6d4" stroke-width="3" opacity="0.55"/>
+  <text x="120" y="220" font-size="14" font-weight="bold" fill="white" text-anchor="middle" font-family="Arial">
+    Dr. Appiah-Thompson
+  </text>
+</svg>

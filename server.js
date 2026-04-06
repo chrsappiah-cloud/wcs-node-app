@@ -3,6 +3,7 @@ const path = require('path');
 
 const app = express();
 const PORT = 3000;
+const CUSTOM_PATH = '/world-class-scholars';
 
 // Set view engine
 app.set('view engine', 'ejs');
@@ -11,14 +12,13 @@ app.set('views', path.join(__dirname, 'views'));
 // Serve static files from public directory
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Routes
-app.get('/', (req, res) => {
+function renderProfilePage(req, res) {
   const profileData = {
     name: 'Dr. Christopher Appiah-Thompson',
     title: 'Founder & CEO, World Class Scholars',
     bio: 'Global advocate for social justice in disability, mental health, dementia care, education, and creative storytelling.',
     tagline: 'Bridging research, frontline practice, lived experience, and creative storytelling to design humane services.',
-    image: '/images/dr-chris.jpg',
+    image: '/images/dr-chris.svg',
     links: [
       {
         label: 'Personal Site',
@@ -69,11 +69,20 @@ app.get('/', (req, res) => {
   res.render('index', {
     profile: profileData,
     software: softwareProjects,
-    workshopImage: '/images/workshop.jpg'
+    workshopImage: '/images/workshop.svg',
+    customUrl: `${req.protocol}://${req.get('host')}${CUSTOM_PATH}`
   });
+}
+
+// Routes
+app.get('/', renderProfilePage);
+app.get(CUSTOM_PATH, renderProfilePage);
+app.get('/wcs', (req, res) => {
+  res.redirect(302, CUSTOM_PATH);
 });
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
+  console.log(`🔗 Custom URL: http://localhost:${PORT}${CUSTOM_PATH}`);
   console.log(`📖 World Class Scholars Demo - Healing Arts & Digital Storytelling`);
 });
