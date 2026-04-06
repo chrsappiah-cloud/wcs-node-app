@@ -1,6 +1,11 @@
 import { randomUUID } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 import { Queue } from 'bullmq';
+import {
+  archiveMiddlewareArtifact,
+  publishAlertNotification,
+  publishMiddlewareEvent
+} from '../../common/aws/middleware-publisher';
 
 export interface Alert {
   id: string;
@@ -79,6 +84,36 @@ export class AlertsService {
         },
         this.queueJobOptions
       );
+    }
+
+    try {
+      await publishMiddlewareEvent({
+        eventType: 'alerts.created',
+        payload: {
+          alertId: id,
+          circleId,
+          userId,
+          type,
+          message,
+          geofenceId,
+          createdAt: alert.createdAt
+        }
+      });
+
+      await publishAlertNotification({
+        alertId: id,
+        circleId,
+        userId,
+        type,
+        message,
+        createdAt: alert.createdAt
+      });
+
+      await archiveMiddlewareArtifact('alerts', {
+        alert
+      });
+    } catch {
+      // Alert creation remains available even when AWS publishers are not configured.
     }
 
     return alert;

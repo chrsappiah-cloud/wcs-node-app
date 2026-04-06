@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Queue } from 'bullmq';
+import { archiveMiddlewareArtifact, publishMiddlewareEvent } from '../../common/aws/middleware-publisher';
 
 export interface LocationEvent {
   userId: string;
@@ -85,6 +86,27 @@ export class PresenceService {
         { userId, lat, lng, accuracy, recordedAt },
         this.queueJobOptions
       );
+    }
+
+    try {
+      await publishMiddlewareEvent({
+        eventType: 'presence.location.ingested',
+        payload: {
+          userId,
+          lat,
+          lng,
+          accuracy,
+          speed,
+          recordedAt
+        }
+      });
+
+      await archiveMiddlewareArtifact('presence-events', {
+        userId,
+        event
+      });
+    } catch {
+      // Do not fail ingest when AWS middleware publishing is unavailable.
     }
 
     return event;

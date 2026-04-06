@@ -17,7 +17,6 @@ import {
   Logger,
   OnModuleDestroy
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiForbiddenResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { Observable } from 'rxjs';
 import { Queue } from 'bullmq';
 import { ArrayMaxSize, ArrayNotEmpty, IsArray, IsNumber, IsOptional, IsString, Min } from 'class-validator';
@@ -66,10 +65,6 @@ class PresenceInterceptor implements NestInterceptor {
 
 @Controller('presence')
 @UseInterceptors(PresenceInterceptor)
-@ApiTags('presence')
-@ApiBearerAuth()
-@ApiUnauthorizedResponse({ description: 'Missing or invalid auth credentials.' })
-@ApiForbiddenResponse({ description: 'Authenticated user lacks required role.' })
 class PresenceController {
   constructor(private presenceService: PresenceService) {}
 

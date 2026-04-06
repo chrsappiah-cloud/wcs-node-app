@@ -142,22 +142,43 @@ run_ui_tests() {
 
 run_dearts_tests() {
     print_header "Running DeArtWCS Focused Test Sweep"
-    rm -rf "$TEST_LOG_PATH/DeArtsTests.xcresult"
 
+    # Run DeArts unit/integration and UI flows in separate xcodebuild invocations.
+    # This avoids intermittent simulator worker materialization failures seen in combined runs.
+    rm -rf "$TEST_LOG_PATH/DeArtsUnitIntegration.xcresult"
     xcodebuild test \
         -project "$PROJECT_PATH" \
         -scheme "$SCHEME" \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
         -derivedDataPath "$DERIVED_DATA_PATH" \
+        -parallel-testing-enabled NO \
+        -maximum-parallel-testing-workers 1 \
         -only-testing:GeoWCSTests/DeArtsWCSTDDScaffoldTests \
         -only-testing:GeoWCSTests/DeArtsWCSAppTypesScaffoldTests \
         -only-testing:GeoWCSTests/DeArtsWCSSeedModeIntegrationTests \
+        -enableCodeCoverage "$COVERAGE_ENABLED" \
+        -resultBundlePath "$TEST_LOG_PATH/DeArtsUnitIntegration.xcresult" \
+        2>&1 | tee "$TEST_LOG_PATH/dearts-unit-integration.log" || {
+            print_error "DeArtWCS unit/integration phase failed"
+            return 1
+        }
+
+    prepare_simulator
+    rm -rf "$TEST_LOG_PATH/DeArtsUIFlows.xcresult"
+    xcodebuild test \
+        -project "$PROJECT_PATH" \
+        -scheme "$SCHEME" \
+        -configuration "$CONFIGURATION" \
+        -derivedDataPath "$DERIVED_DATA_PATH" \
+        -destination "$UI_TEST_DESTINATION" \
+        -parallel-testing-enabled NO \
+        -maximum-parallel-testing-workers 1 \
         -only-testing:GeoWCSUITests/DeArtsWCSCriticalFlowsUITests \
         -enableCodeCoverage "$COVERAGE_ENABLED" \
-        -resultBundlePath "$TEST_LOG_PATH/DeArtsTests.xcresult" \
-        2>&1 | tee "$TEST_LOG_PATH/dearts-tests.log" || {
-            print_error "DeArtWCS test sweep failed"
+        -resultBundlePath "$TEST_LOG_PATH/DeArtsUIFlows.xcresult" \
+        2>&1 | tee "$TEST_LOG_PATH/dearts-ui-flows.log" || {
+            print_error "DeArtWCS UI flows phase failed"
             return 1
         }
 
@@ -314,7 +335,10 @@ print_summary() {
     unit_count=$(_extract_test_count "$TEST_LOG_PATH/unit-tests.log")
     integration_count=$(_extract_test_count "$TEST_LOG_PATH/integration-tests.log")
     ui_count=$(_extract_test_count "$TEST_LOG_PATH/ui-tests.log")
-    dearts_count=$(_extract_test_count "$TEST_LOG_PATH/dearts-tests.log")
+    dearts_count=$((
+        $(_extract_test_count "$TEST_LOG_PATH/dearts-unit-integration.log") +
+        $(_extract_test_count "$TEST_LOG_PATH/dearts-ui-flows.log")
+    ))
 
     print_success "Unit tests:        $unit_count tests"
     print_success "Integration tests: $integration_count tests"

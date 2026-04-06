@@ -1,0 +1,12 @@
+{
+  "id": "00000000-0000-0000-0000-000000000111",
+  "ownerID": "00000000-0000-0000-0000-000000000222",
+  "kind": "audioPrompt"
+  "title": "Broken Media Asset",
+  "localURL": "file:///tmp/broken.m4a",
+  "durationSeconds": 12.5,
+  "thumbnailURL": null,
+  "createdAt": 0,
+  "state": "saved",
+  "tags": ["broken"]
+}

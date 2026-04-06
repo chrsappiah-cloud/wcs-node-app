@@ -6,9 +6,11 @@ import { AppModule } from './app.module';
 describe('API integration', () => {
   let app: INestApplication;
   const originalDisableRedis = process.env.DISABLE_REDIS;
+  const originalOtpFixedCode = process.env.OTP_FIXED_CODE;
 
   beforeAll(async () => {
     process.env.DISABLE_REDIS = 'true';
+    process.env.OTP_FIXED_CODE = '123456';
 
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule]
@@ -24,10 +26,16 @@ describe('API integration', () => {
 
     if (originalDisableRedis === undefined) {
       delete process.env.DISABLE_REDIS;
+    } else {
+      process.env.DISABLE_REDIS = originalDisableRedis;
+    }
+
+    if (originalOtpFixedCode === undefined) {
+      delete process.env.OTP_FIXED_CODE;
       return;
     }
 
-    process.env.DISABLE_REDIS = originalDisableRedis;
+    process.env.OTP_FIXED_CODE = originalOtpFixedCode;
   });
 
   it('serves the health endpoint', async () => {
@@ -35,6 +43,49 @@ describe('API integration', () => {
       .get('/v1/health')
       .expect(200)
       .expect({ status: 'ok', service: 'dreamflow-api' });
+  });
+
+  it('sends and verifies phone OTP for login', async () => {
+    const phone = '+14155552671';
+
+    await request(app.getHttpServer())
+      .post('/v1/auth/phone/send-otp')
+      .send({ phone })
+      .expect(201)
+      .expect({ sent: true });
+
+    await request(app.getHttpServer())
+      .post('/v1/auth/phone/verify-otp')
+      .send({ phone, code: '123456' })
+      .expect(201)
+      .expect(response => {
+        expect(response.body.token).toEqual(expect.any(String));
+      });
+  });
+
+  it('rejects invalid or stale OTP verification attempts', async () => {
+    const phone = '+14155552672';
+
+    await request(app.getHttpServer())
+      .post('/v1/auth/phone/send-otp')
+      .send({ phone })
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .post('/v1/auth/phone/verify-otp')
+      .send({ phone, code: '654321' })
+      .expect(401)
+      .expect(response => {
+        expect(response.body.message).toBe('Invalid verification code');
+      });
+
+    await request(app.getHttpServer())
+      .post('/v1/auth/phone/verify-otp')
+      .send({ phone: '+14155559999', code: '123456' })
+      .expect(401)
+      .expect(response => {
+        expect(response.body.message).toBe('No pending verification for this number');
+      });
   });
 
   it('rejects invalid circle creation payloads', async () => {

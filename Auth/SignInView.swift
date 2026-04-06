@@ -43,6 +43,26 @@ struct SignInView: View {
                             .multilineTextAlignment(.center)
                     }
 
+                    if !authManager.configurationWarnings.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Label("Auth Setup Required", systemImage: "exclamationmark.triangle.fill")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(.orange)
+
+                            ForEach(authManager.configurationWarnings, id: \.self) { warning in
+                                Text("• \(warning)")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .padding(12)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color(.secondarySystemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .padding(.horizontal, 28)
+                        .padding(.top, 20)
+                    }
+
                     Spacer()
 
                     // Auth buttons
@@ -51,6 +71,7 @@ struct SignInView: View {
                         AppleSignInButton()
                             .frame(height: 52)
                             .cornerRadius(12)
+                            .accessibilityIdentifier("Continue with Apple")
                             .onTapGesture {
                                 authManager.signInWithApple()
                             }
@@ -71,6 +92,7 @@ struct SignInView: View {
                             .foregroundColor(.white)
                             .cornerRadius(12)
                         }
+                        .accessibilityIdentifier("Continue with Google")
                         .buttonStyle(.plain)
 
                         // Phone
@@ -93,6 +115,7 @@ struct SignInView: View {
                                     .strokeBorder(Color(.separator), lineWidth: 0.5)
                             )
                         }
+                        .accessibilityIdentifier("Continue with Phone")
                         .buttonStyle(.plain)
                     }
                     .padding(.horizontal, 28)
@@ -125,6 +148,9 @@ struct SignInView: View {
                     errorMessage = msg
                     showErrorAlert = true
                 }
+            }
+            .onAppear {
+                authManager.refreshConfigurationWarnings()
             }
             .alert("Sign In Failed", isPresented: $showErrorAlert) {
                 Button("OK") { }

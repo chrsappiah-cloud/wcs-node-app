@@ -1,0 +1,22 @@
+aws_region          = "ap-southeast-2"
+project_name        = "dreamflow"
+environment         = "prod"
+
+api_container_image = "123456789012.dkr.ecr.ap-southeast-2.amazonaws.com/dreamflow-api:latest"
+
+# Use strong values. Terraform stores these in AWS Secrets Manager and injects
+# them into ECS as runtime secrets (DATABASE_PASSWORD and SMTP_PASS).
+# Do not commit real secrets.
+db_password         = "replace-with-strong-password"
+
+# Recommended production mode: reference pre-existing secrets instead of passing
+# secret values through Terraform variables/state.
+# db_password_secret_arn   = "arn:aws:secretsmanager:ap-southeast-2:123456789012:secret:dreamflow-prod/database/password-xxxxxx"
+# smtp_password_secret_arn = "arn:aws:secretsmanager:ap-southeast-2:123456789012:secret:dreamflow-prod/smtp/password-xxxxxx"
+
+# Optional SMTP settings for enquiry email notifications.
+smtp_host           = "smtp.gmail.com"
+smtp_port           = 587
+smtp_secure         = false
+smtp_user           = ""
+smtp_pass           = ""

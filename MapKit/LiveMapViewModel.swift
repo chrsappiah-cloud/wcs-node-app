@@ -1,7 +1,9 @@
 import Foundation
+import Combine
 import CloudKit
 import CoreLocation
 import MapKit
+import SwiftUI
 
 /// Drives the live map: polls CloudKit for every circle member's latest
 /// position and exposes a `MapCameraPosition` that follows the owner's

@@ -10,7 +10,7 @@ struct SubscriptionPaywallView: View {
     @State private var selectedPlan: SubscriptionPlan = .yearly
     @State private var showError = false
 
-    private enum SubscriptionPlan: String, CaseIterable {
+    enum SubscriptionPlan: String, CaseIterable {
         case monthly = "Monthly"
         case yearly  = "Yearly"
     }
@@ -163,12 +163,18 @@ struct SubscriptionPaywallView: View {
                   let yP = entitlementManager.yearlyProduct()?.price,
                   mP > 0
             else { return nil }
-            let annualFromMonthly = mP * 12
-            let pct = Int(((annualFromMonthly - yP) / annualFromMonthly * 100).rounded())
+            let monthlyValue = NSDecimalNumber(decimal: mP).doubleValue
+            let yearlyValue = NSDecimalNumber(decimal: yP).doubleValue
+            guard monthlyValue > 0 else { return nil }
+            let annualFromMonthly = monthlyValue * 12.0
+            let pct = Int((((annualFromMonthly - yearlyValue) / annualFromMonthly) * 100.0).rounded())
             return pct > 0 ? "Save \(pct)%" : nil
         }
-        let annualFromMonthly = mPrice * 12
-        let pct = Int(((annualFromMonthly - yPrice) / annualFromMonthly * 100).rounded())
+        let monthlyValue = NSDecimalNumber(decimal: mPrice).doubleValue
+        let yearlyValue = NSDecimalNumber(decimal: yPrice).doubleValue
+        guard monthlyValue > 0 else { return nil }
+        let annualFromMonthly = monthlyValue * 12.0
+        let pct = Int((((annualFromMonthly - yearlyValue) / annualFromMonthly) * 100.0).rounded())
         return pct > 0 ? "Save \(pct)%" : nil
     }
 }

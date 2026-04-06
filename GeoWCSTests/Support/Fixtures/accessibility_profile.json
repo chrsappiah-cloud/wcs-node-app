@@ -1,0 +1,9 @@
+{
+  "minimumTapTargetPts": 72,
+  "fontScaleMultiplier": 1.4,
+  "contrastMode": "veryHigh",
+  "simplifiedLayout": true,
+  "voiceSpeed": 0.9,
+  "useLargeBrushByDefault": false,
+  "hapticFeedbackEnabled": true
+}

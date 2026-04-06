@@ -1,0 +1,12 @@
+{
+  "id": "00000000-0000-0000-0000-000000000333",
+  "title": "Broken Prompt",
+  "bodyText": "This fixture is intentionally malformed"
+  "modality": "audio",
+  "difficulty": 1,
+  "durationHint": 45,
+  "imageAssetID": null,
+  "audioAssetID": null,
+  "tags": ["broken"],
+  "authoredByCarerID": "00000000-0000-0000-0000-000000000444"
+}

@@ -96,7 +96,7 @@ private struct FriendPinMarker: View {
     var body: some View {
         VStack(spacing: 2) {
             ZStack {
-                Circle()
+                SwiftUI.Circle()
                     .fill(pin.isStale ? Color(.systemGray3) : Color.accentColor)
                     .frame(width: 38, height: 38)
                     .shadow(color: .black.opacity(0.18), radius: 3, y: 1)

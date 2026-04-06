@@ -15,7 +15,7 @@
       "value": "NODE|20-lts"
     },
     "deployApiWebApp": {
-      "value": false
+      "value": true
     },
     "redisSkuName": {
       "value": "Basic"

@@ -61,7 +61,17 @@ func parseArguments() -> Config {
         projectPath: projectPath,
         sourcePath: sourcePath,
         targetRoot: targetRoot,
-        folders: ["MapKit", "CoreLocation", "CoreData", "CloudKit"],
+        folders: [
+            "Audio",
+            "Auth",
+            "CloudKit",
+            "CoreData",
+            "CoreLocation",
+            "MapKit",
+            "Notifications",
+            "Subscription",
+            "RokMaxCreative"
+        ],
         rootFiles: ["ContentView.swift", "GeoWCSApp.swift", "Item.swift"],
         dryRun: dryRun
     )

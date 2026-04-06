@@ -199,6 +199,18 @@ bash scripts/run-tests.sh ui
 
 Regression rule: every production bug fix must include at least one test that fails before the fix and passes after it.
 
+### Test Support Conventions
+
+Shared test helpers should go under `GeoWCSTests/Support/`:
+
+- `Fixtures/` for static JSON and fixture-loading utilities
+- `Builders/` for reusable test data builders
+- `Fakes/` for lightweight in-memory implementations
+- `Spies/` for interaction recording helpers
+- `Mocks/` for strict interaction-based doubles
+
+Prefer reusing support helpers before introducing new ad-hoc test utilities in individual test files.
+
 ### Before Submitting
 
 ```bash

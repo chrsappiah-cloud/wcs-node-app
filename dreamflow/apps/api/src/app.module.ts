@@ -15,8 +15,12 @@ import { CirclesModule } from './modules/circles.module';
 import { PresenceModule } from './modules/presence.module';
 import { AlertsModule } from './modules/alerts.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { WcsPlatformModule } from './modules/wcs-platform.module';
+import { OpenAIMediaModule } from './modules/openai-media.module';
+import { GenAIModule } from './modules/genai.module';
 import { RequestContextMiddleware } from './common/middleware/request-context.middleware';
 import { AuthMiddleware } from './common/middleware/auth.middleware';
+import { InputSecurityMiddleware } from './common/middleware/input-security.middleware';
 import { RolesGuard } from './common/auth/roles.guard';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
@@ -36,12 +40,16 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
     CirclesModule,
     PresenceModule,
     AlertsModule,
-    AuthModule
+    AuthModule,
+    WcsPlatformModule,
+    OpenAIMediaModule,
+    GenAIModule
   ]
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(RequestContextMiddleware).forRoutes({ path: '*', method: RequestMethod.ALL });
+    consumer.apply(InputSecurityMiddleware).forRoutes({ path: '*', method: RequestMethod.ALL });
     consumer.apply(AuthMiddleware).forRoutes({ path: '*', method: RequestMethod.ALL });
   }
 }

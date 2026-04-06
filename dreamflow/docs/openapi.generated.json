@@ -1,0 +1,749 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "DreamFlow API Contracts (Generated)",
+    "version": "0.1.0",
+    "description": "Static OpenAPI artifact generated from shared Zod contracts in packages/schemas."
+  },
+  "paths": {
+    "/v1/circles": {
+      "post": {
+        "summary": "Create circle",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCircleRequest"
+              },
+              "example": {
+                "name": "Family Circle",
+                "type": "family",
+                "userId": "user-1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Circle created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateCircleResponse"
+                },
+                "example": {
+                  "id": "circle-1",
+                  "name": "Family Circle",
+                  "type": "family",
+                  "createdAt": "2026-04-05T12:00:00.000Z",
+                  "members": [
+                    "user-1"
+                  ],
+                  "geofences": [
+                    {
+                      "id": "gf-home",
+                      "lat": 37.7749,
+                      "lng": -122.4194,
+                      "radiusMeters": 120,
+                      "name": "Home"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure"
+          }
+        }
+      }
+    },
+    "/v1/presence/location": {
+      "post": {
+        "summary": "Ingest location ping",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LocationPingRequest"
+              },
+              "example": {
+                "userId": "user-1",
+                "lat": 37.7749,
+                "lng": -122.4194,
+                "accuracy": 8,
+                "speed": 1.2,
+                "recordedAt": "2026-04-05T12:01:00.000Z"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Location accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocationPingResponse"
+                },
+                "example": {
+                  "accepted": true,
+                  "event": {
+                    "userId": "user-1",
+                    "lat": 37.7749,
+                    "lng": -122.4194,
+                    "accuracy": 8,
+                    "speed": 1.2,
+                    "recordedAt": "2026-04-05T12:01:00.000Z",
+                    "processedAt": "2026-04-05T12:01:01.250Z"
+                  },
+                  "timestamp": "2026-04-05T12:01:01.250Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure"
+          }
+        }
+      }
+    },
+    "/v1/auth/phone/send-otp": {
+      "post": {
+        "summary": "Send OTP to phone number",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendOtpRequest"
+              },
+              "example": {
+                "phone": "+14155552671"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OTP send accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendOtpResponse"
+                },
+                "example": {
+                  "sent": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure"
+          }
+        }
+      }
+    },
+    "/v1/auth/phone/verify-otp": {
+      "post": {
+        "summary": "Verify OTP and issue auth token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyOtpRequest"
+              },
+              "example": {
+                "phone": "+14155552671",
+                "code": "123456"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Verification succeeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyOtpResponse"
+                },
+                "example": {
+                  "token": "eyJhbGciOi..."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired code"
+          }
+        }
+      }
+    },
+    "/v1/alerts": {
+      "post": {
+        "summary": "Create alert event",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAlertRequest"
+              },
+              "example": {
+                "circleId": "circle-1",
+                "userId": "user-1",
+                "type": "arrival",
+                "geofenceId": "gf-home",
+                "message": "Arrived at Home"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Alert created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateAlertResponse"
+                },
+                "example": {
+                  "id": "alert-1",
+                  "circleId": "circle-1",
+                  "userId": "user-1",
+                  "type": "arrival",
+                  "geofenceId": "gf-home",
+                  "message": "Arrived at Home",
+                  "createdAt": "2026-04-05T12:02:00.000Z",
+                  "acknowledged": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure"
+          }
+        }
+      }
+    },
+    "/v1/alerts/sos": {
+      "post": {
+        "summary": "Trigger SOS alert",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SosRequest"
+              },
+              "example": {
+                "userId": "user-1",
+                "circleId": "circle-1",
+                "lat": 37.775,
+                "lng": -122.4195
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "SOS accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SosResponse"
+                },
+                "example": {
+                  "accepted": true,
+                  "type": "sos",
+                  "alert": {
+                    "id": "alert-sos-1",
+                    "circleId": "circle-1",
+                    "userId": "user-1",
+                    "type": "sos",
+                    "message": "SOS triggered",
+                    "createdAt": "2026-04-05T12:03:00.000Z",
+                    "acknowledged": false
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CreateCircleRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 2
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "family",
+              "care",
+              "team"
+            ]
+          },
+          "userId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "name",
+          "type",
+          "userId"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "LocationPingRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "string",
+                "minLength": 1
+              }
+            ]
+          },
+          "lat": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "lng": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "accuracy": {
+            "type": "number",
+            "minimum": 0
+          },
+          "speed": {
+            "type": "number",
+            "minimum": 0
+          },
+          "recordedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "userId",
+          "lat",
+          "lng",
+          "accuracy",
+          "recordedAt"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "SendOtpRequest": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "pattern": "^\\+[1-9]\\d{6,14}$"
+          }
+        },
+        "required": [
+          "phone"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "VerifyOtpRequest": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "pattern": "^\\+[1-9]\\d{6,14}$"
+          },
+          "code": {
+            "type": "string",
+            "pattern": "^\\d{6}$"
+          }
+        },
+        "required": [
+          "phone",
+          "code"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "CreateAlertRequest": {
+        "type": "object",
+        "properties": {
+          "circleId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "userId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "arrival",
+              "departure",
+              "sos",
+              "low_battery",
+              "device_offline",
+              "inactivity"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "geofenceId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "circleId",
+          "userId",
+          "type",
+          "message"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "SosRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "circleId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "lat": {
+            "type": "number"
+          },
+          "lng": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "userId",
+          "circleId",
+          "lat",
+          "lng"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "CreateCircleResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "family",
+              "care",
+              "team"
+            ]
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "geofences": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "lat": {
+                  "type": "number"
+                },
+                "lng": {
+                  "type": "number"
+                },
+                "radiusMeters": {
+                  "type": "number"
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "id",
+                "lat",
+                "lng",
+                "radiusMeters",
+                "name"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "type",
+          "createdAt",
+          "members",
+          "geofences"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "LocationPingResponse": {
+        "type": "object",
+        "properties": {
+          "accepted": {
+            "type": "boolean"
+          },
+          "event": {
+            "type": "object",
+            "properties": {
+              "userId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "lat": {
+                "type": "number"
+              },
+              "lng": {
+                "type": "number"
+              },
+              "accuracy": {
+                "type": "number",
+                "minimum": 0
+              },
+              "speed": {
+                "type": "number",
+                "minimum": 0
+              },
+              "recordedAt": {
+                "type": "string"
+              },
+              "processedAt": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "userId",
+              "lat",
+              "lng",
+              "accuracy",
+              "recordedAt",
+              "processedAt"
+            ],
+            "additionalProperties": false
+          },
+          "timestamp": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "accepted",
+          "event",
+          "timestamp"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "SendOtpResponse": {
+        "type": "object",
+        "properties": {
+          "sent": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "sent"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "VerifyOtpResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "token"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "CreateAlertResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "circleId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "userId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "arrival",
+              "departure",
+              "sos",
+              "low_battery",
+              "device_offline",
+              "inactivity"
+            ]
+          },
+          "geofenceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "resolvedAt": {
+            "type": "string"
+          },
+          "acknowledged": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "circleId",
+          "userId",
+          "type",
+          "message",
+          "createdAt",
+          "acknowledged"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "SosResponse": {
+        "type": "object",
+        "properties": {
+          "accepted": {
+            "type": "boolean"
+          },
+          "type": {
+            "type": "string",
+            "const": "sos"
+          },
+          "alert": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "circleId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "userId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "arrival",
+                  "departure",
+                  "sos",
+                  "low_battery",
+                  "device_offline",
+                  "inactivity"
+                ]
+              },
+              "geofenceId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "message": {
+                "type": "string",
+                "minLength": 1
+              },
+              "createdAt": {
+                "type": "string"
+              },
+              "resolvedAt": {
+                "type": "string"
+              },
+              "acknowledged": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "id",
+              "circleId",
+              "userId",
+              "type",
+              "message",
+              "createdAt",
+              "acknowledged"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "accepted",
+          "type",
+          "alert"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    }
+  }
+}

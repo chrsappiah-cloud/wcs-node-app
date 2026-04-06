@@ -84,7 +84,7 @@ resource apiWebApp 'Microsoft.Web/sites@2023-12-01' = if (deployApiWebApp) {
           value: '6380'
         }
       ]
-      alwaysOn: true
+      alwaysOn: appServiceSkuName == 'F1' ? false : true
       minTlsVersion: '1.2'
       ftpsState: 'Disabled'
       http20Enabled: true
@@ -108,5 +108,5 @@ resource redis 'Microsoft.Cache/Redis@2024-03-01' = {
   }
 }
 
-output apiUrl string = deployApiWebApp ? 'https://${apiWebApp.properties.defaultHostName}' : 'not-deployed'
+output apiUrl string = deployApiWebApp ? 'https://${apiWebApp!.properties.defaultHostName}' : 'not-deployed'
 output redisHost string = '${redis.name}.redis.cache.windows.net'

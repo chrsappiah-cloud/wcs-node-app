@@ -7,6 +7,7 @@
 //
 
 import AuthenticationServices
+import Combine
 import CryptoKit
 import Foundation
 import UIKit
@@ -21,6 +22,18 @@ enum AuthState: Equatable {
     case error(String)
 }
 
+enum AuthDiagnosticStatus {
+    case ok
+    case warning
+}
+
+struct AuthDiagnosticItem: Identifiable {
+    let id = UUID()
+    let title: String
+    let status: AuthDiagnosticStatus
+    let detail: String
+}
+
 // MARK: - AuthManager
 
 /// Single source of truth for the sign-in lifecycle.
@@ -33,6 +46,7 @@ final class AuthManager: NSObject, ObservableObject {
 
     @Published var state: AuthState = .idle
     @Published var session: AuthSession?
+    @Published private(set) var configurationWarnings: [String] = []
 
     // MARK: Private
 
@@ -41,6 +55,7 @@ final class AuthManager: NSObject, ObservableObject {
 
     // Google OAuth PKCE state
     private var googleCodeVerifier: String?
+    private var googleOAuthState: String?
     private var googleAuthSession: ASWebAuthenticationSession?
 
     // Apple credential request coordinator
@@ -53,7 +68,114 @@ final class AuthManager: NSObject, ObservableObject {
         let configured = Bundle.main.object(forInfoDictionaryKey: "GeoWCSAPIBase") as? String
         apiBase = configured ?? "http://localhost:3000"
         super.init()
-        session = keychain.loadSession()
+
+        let args = ProcessInfo.processInfo.arguments
+        let env = ProcessInfo.processInfo.environment
+        let useStubAuth = args.contains("UITEST_MODE") || args.contains("--stub-auth-session") || env["GEOWCS_STUB_AUTH"] == "1"
+
+        if useStubAuth {
+            session = AuthSession(
+                userId: "ui-test-user",
+                authMethod: .phone,
+                displayName: "UI Test User",
+                phoneNumber: "+14155550100",
+                email: nil,
+                bearerToken: "ui-test-token",
+                consentGrantedAt: Date(),
+                tier: .premium
+            )
+        } else {
+            session = keychain.loadSession()
+        }
+
+        refreshConfigurationWarnings()
+    }
+
+    func refreshConfigurationWarnings() {
+        var warnings: [String] = []
+
+        if apiBase.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            warnings.append("GeoWCSAPIBase is not configured. Set it in Info.plist.")
+        } else if apiBase.contains("localhost") || apiBase.contains("127.0.0.1") {
+            warnings.append("GeoWCSAPIBase is set to localhost. Start the API server before phone/Google/Apple sign-in.")
+        }
+
+        if let rawClientId = Bundle.main.object(forInfoDictionaryKey: "GoogleClientID") as? String,
+           !rawClientId.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            let normalized = normalizeGoogleClientID(rawClientId)
+            let expectedScheme = configuredGoogleRedirectScheme(for: normalized)
+
+            if !bundleHasURLScheme(expectedScheme) {
+                warnings.append("Google URL scheme is missing. Add \(expectedScheme) to CFBundleURLSchemes.")
+            }
+        } else {
+            warnings.append("GoogleClientID is missing. Google sign-in will be unavailable.")
+        }
+
+        configurationWarnings = warnings
+    }
+
+    func diagnostics() -> [AuthDiagnosticItem] {
+        let normalizedGoogleClientID: String? = {
+            guard let value = Bundle.main.object(forInfoDictionaryKey: "GoogleClientID") as? String,
+                  !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            else {
+                return nil
+            }
+            return normalizeGoogleClientID(value)
+        }()
+
+        let googleScheme = normalizedGoogleClientID.map(configuredGoogleRedirectScheme(for:))
+        let hasGoogleScheme = googleScheme.map(bundleHasURLScheme) ?? false
+
+        let apiStatus: AuthDiagnosticStatus = {
+            let trimmed = apiBase.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmed.isEmpty { return .warning }
+            if trimmed.contains("localhost") || trimmed.contains("127.0.0.1") { return .warning }
+            return .ok
+        }()
+
+        let apiDetail: String = {
+            if apiBase.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                return "GeoWCSAPIBase missing in Info.plist"
+            }
+            if apiBase.contains("localhost") || apiBase.contains("127.0.0.1") {
+                return "Using local API (\(apiBase)); ensure backend server is running"
+            }
+            return "Using backend: \(apiBase)"
+        }()
+
+        let googleClientStatus: AuthDiagnosticStatus = normalizedGoogleClientID == nil ? .warning : .ok
+        let googleClientDetail = normalizedGoogleClientID ?? "GoogleClientID missing in Info.plist"
+
+        let googleSchemeStatus: AuthDiagnosticStatus = hasGoogleScheme ? .ok : .warning
+        let googleSchemeDetail: String = {
+            guard let googleScheme else {
+                return "Cannot validate scheme until GoogleClientID is set"
+            }
+            return hasGoogleScheme
+                ? "Registered callback scheme: \(googleScheme)"
+                : "Missing callback scheme in CFBundleURLSchemes: \(googleScheme)"
+        }()
+
+        let openAIKey = ProcessInfo.processInfo.environment["OPENAI_API_KEY"]
+        let openAIConfigured = (openAIKey?.isEmpty == false)
+
+        return [
+            AuthDiagnosticItem(title: "Phone Auth API", status: apiStatus, detail: apiDetail),
+            AuthDiagnosticItem(title: "Google Client ID", status: googleClientStatus, detail: googleClientDetail),
+            AuthDiagnosticItem(title: "Google Callback Scheme", status: googleSchemeStatus, detail: googleSchemeDetail),
+            AuthDiagnosticItem(
+                title: "Apple Sign In",
+                status: .ok,
+                detail: "AuthenticationServices available (ensure capability is enabled in the app target)"
+            ),
+            AuthDiagnosticItem(
+                title: "OpenAI API Key",
+                status: openAIConfigured ? .ok : .warning,
+                detail: openAIConfigured ? "OPENAI_API_KEY is available" : "OPENAI_API_KEY not set (RokMaxCreative uses fallback mode)"
+            )
+        ]
     }
 
     // MARK: - Sign Out
@@ -134,25 +256,29 @@ final class AuthManager: NSObject, ObservableObject {
     // MARK: - Google OAuth (PKCE via ASWebAuthenticationSession)
 
     func signInWithGoogle(from windowScene: UIWindowScene? = nil) {
-        guard let clientId = Bundle.main.object(forInfoDictionaryKey: "GoogleClientID") as? String,
-              !clientId.isEmpty else {
+        guard let rawClientId = Bundle.main.object(forInfoDictionaryKey: "GoogleClientID") as? String,
+              !rawClientId.isEmpty else {
             state = .error("Google Client ID is not configured in Info.plist")
             return
         }
 
+        let clientId = normalizeGoogleClientID(rawClientId)
+        let redirectScheme = configuredGoogleRedirectScheme(for: clientId)
+        let redirectURI = "\(redirectScheme):/oauth2redirect"
+
         let verifier = randomNonceString(length: 64)
         googleCodeVerifier = verifier
         let challenge = base64URLEncode(sha256Data(verifier))
-
-        let redirectScheme = "com.googleusercontent.apps.\(clientId)"
-        let redirectURI = "\(redirectScheme):/oauth2redirect"
+        let oauthState = randomNonceString(length: 16)
+        googleOAuthState = oauthState
 
         var components = URLComponents(string: "https://accounts.google.com/o/oauth2/v2/auth")!
         components.queryItems = [
-            .init(name: "client_id",             value: "\(clientId).apps.googleusercontent.com"),
+            .init(name: "client_id",             value: clientId),
             .init(name: "redirect_uri",           value: redirectURI),
             .init(name: "response_type",          value: "code"),
             .init(name: "scope",                  value: "openid email profile"),
+            .init(name: "state",                  value: oauthState),
             .init(name: "code_challenge",         value: challenge),
             .init(name: "code_challenge_method",  value: "S256")
         ]
@@ -171,21 +297,40 @@ final class AuthManager: NSObject, ObservableObject {
             Task { @MainActor [weak self] in
                 guard let self else { return }
                 if let error {
+                    self.googleCodeVerifier = nil
+                    self.googleOAuthState = nil
                     self.state = .error(self.errorMessage(from: error))
                     return
                 }
-                guard let code = URLComponents(url: callbackURL!, resolvingAgainstBaseURL: false)?
-                    .queryItems?.first(where: { $0.name == "code" })?.value
+                guard let callbackURL,
+                      let queryItems = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)?.queryItems,
+                      let code = queryItems.first(where: { $0.name == "code" })?.value
                 else {
+                    self.googleCodeVerifier = nil
+                    self.googleOAuthState = nil
                     self.state = .error("Google auth response missing code")
                     return
                 }
+
+                let returnedState = queryItems.first(where: { $0.name == "state" })?.value
+                if returnedState != self.googleOAuthState {
+                    self.googleCodeVerifier = nil
+                    self.googleOAuthState = nil
+                    self.state = .error("Google auth state mismatch. Please try again.")
+                    return
+                }
+
                 await self.exchangeGoogleCode(code: code, redirectURI: redirectURI, clientId: clientId)
             }
         }
-        googleAuthSession?.presentationContextProvider = self as? ASWebAuthenticationPresentationContextProviding
+        googleAuthSession?.presentationContextProvider = self
         googleAuthSession?.prefersEphemeralWebBrowserSession = true
-        googleAuthSession?.start()
+        guard googleAuthSession?.start() == true else {
+            googleCodeVerifier = nil
+            googleOAuthState = nil
+            state = .error("Could not start Google sign-in session")
+            return
+        }
     }
 
     // MARK: - Consent
@@ -210,6 +355,7 @@ final class AuthManager: NSObject, ObservableObject {
     private func exchangeGoogleCode(code: String, redirectURI: String, clientId: String) async {
         guard let verifier = googleCodeVerifier else { return }
         googleCodeVerifier = nil
+        googleOAuthState = nil
 
         do {
             // Exchange auth code for tokens at Google's token endpoint
@@ -217,7 +363,7 @@ final class AuthManager: NSObject, ObservableObject {
                 url: URL(string: "https://oauth2.googleapis.com/token")!,
                 body: [
                     "code": code,
-                    "client_id": "\(clientId).apps.googleusercontent.com",
+                    "client_id": clientId,
                     "redirect_uri": redirectURI,
                     "code_verifier": verifier,
                     "grant_type": "authorization_code"
@@ -335,8 +481,56 @@ final class AuthManager: NSObject, ObservableObject {
             .replacingOccurrences(of: "=", with: "")
     }
 
+    private func normalizeGoogleClientID(_ value: String) -> String {
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.hasSuffix(".apps.googleusercontent.com") {
+            return trimmed
+        }
+        return "\(trimmed).apps.googleusercontent.com"
+    }
+
+    private func configuredGoogleRedirectScheme(for clientId: String) -> String {
+        if let explicit = Bundle.main.object(forInfoDictionaryKey: "GoogleReversedClientID") as? String,
+           !explicit.isEmpty {
+            return explicit
+        }
+
+        if let explicit = Bundle.main.object(forInfoDictionaryKey: "GoogleRedirectScheme") as? String,
+           !explicit.isEmpty {
+            return explicit
+        }
+
+        let prefix = clientId.replacingOccurrences(of: ".apps.googleusercontent.com", with: "")
+        return "com.googleusercontent.apps.\(prefix)"
+    }
+
+    private func bundleHasURLScheme(_ targetScheme: String) -> Bool {
+        guard let urlTypes = Bundle.main.object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]]
+        else {
+            return false
+        }
+
+        let lowercasedTarget = targetScheme.lowercased()
+        for item in urlTypes {
+            guard let schemes = item["CFBundleURLSchemes"] as? [String] else { continue }
+            if schemes.contains(where: { $0.lowercased() == lowercasedTarget }) {
+                return true
+            }
+        }
+        return false
+    }
+
     private func errorMessage(from error: Error) -> String {
         if let authErr = error as? AuthError { return authErr.localizedDescription }
+        if let urlError = error as? URLError,
+           apiBase.contains("localhost") || apiBase.contains("127.0.0.1") {
+            switch urlError.code {
+            case .cannotConnectToHost, .cannotFindHost, .timedOut, .networkConnectionLost, .notConnectedToInternet:
+                return "Cannot reach auth backend at \(apiBase). Start the API server (dreamflow/apps/api) or set GeoWCSAPIBase to a reachable endpoint."
+            default:
+                break
+            }
+        }
         return error.localizedDescription
     }
 }
@@ -396,6 +590,15 @@ extension AuthManager: ASAuthorizationControllerDelegate {
 
 extension AuthManager: ASAuthorizationControllerPresentationContextProviding {
     nonisolated func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first?.windows.first { $0.isKeyWindow }
+            ?? UIWindow()
+    }
+}
+
+extension AuthManager: ASWebAuthenticationPresentationContextProviding {
+    nonisolated func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
         UIApplication.shared.connectedScenes
             .compactMap { $0 as? UIWindowScene }
             .first?.windows.first { $0.isKeyWindow }

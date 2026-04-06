@@ -17,9 +17,9 @@ struct CircleMember: Identifiable, Codable {
     let phoneNumber: String // Validated E.164 format
     let role: Role
     let joinedAt: Date
-    let lastSeenAt: Date?
+    var lastSeenAt: Date?
     let isActive: Bool
-    let deviceTokens: [String] // For push notifications
+    var deviceTokens: [String] // For push notifications
     
     enum Role: String, Codable {
         case creator = "Creator"
@@ -121,9 +121,9 @@ struct Circle: Identifiable, Codable {
     let name: String
     let description: String?
     let creatorId: String
-    let members: [CircleMember]
+    var members: [CircleMember]
     let createdAt: Date
-    let updatedAt: Date
+    var updatedAt: Date
     let maxMembers: Int
     let isPrivate: Bool
     

@@ -8,6 +8,7 @@
 
 import Combine
 import Foundation
+import UIKit
 import UserNotifications
 
 /// Manages device push notification registration and payload handling.

@@ -1,0 +1,100 @@
+name: WCS Platform CI/CD
+
+on:
+  pull_request:
+    paths:
+      - 'dreamflow/**'
+      - '.github/workflows/wcs-platform-ci.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'dreamflow/**'
+      - '.github/workflows/wcs-platform-ci.yml'
+
+jobs:
+  build-and-validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: dreamflow
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: dreamflow/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build API
+        run: npm run build -w @dreamflow/api
+
+      - name: Build web
+        run: npm run build:web
+
+      - name: Upload web dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wcs-web-dist
+          path: dreamflow/apps/web/dist
+
+  deploy-static-web:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build-and-validate
+    runs-on: ubuntu-latest
+    env:
+      AWS_ROLE_TO_ASSUME: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+      AWS_CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
+    permissions:
+      id-token: write
+      contents: read
+    defaults:
+      run:
+        working-directory: dreamflow
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: dreamflow/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web
+        run: npm run build:web
+
+      - name: Configure AWS credentials
+        if: env.AWS_ROLE_TO_ASSUME != '' && env.AWS_REGION != ''
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Sync web dist to S3
+        if: env.AWS_S3_BUCKET != '' && env.AWS_ROLE_TO_ASSUME != '' && env.AWS_REGION != ''
+        run: |
+          aws s3 sync apps/web/dist "s3://${{ env.AWS_S3_BUCKET }}" --delete
+
+      - name: Invalidate CloudFront cache
+        if: env.AWS_CLOUDFRONT_DISTRIBUTION_ID != '' && env.AWS_ROLE_TO_ASSUME != '' && env.AWS_REGION != ''
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "${{ env.AWS_CLOUDFRONT_DISTRIBUTION_ID }}" \
+            --paths '/*'
+
+      - name: Deployment summary
+        run: |
+          echo "Web deployment step completed."
+          echo "If AWS secrets are not configured, this workflow still validates builds."

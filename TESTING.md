@@ -1,527 +1,254 @@
-# GeoWCS iOS Testing System
+# GeoWCS Testing System
 
 ## Overview
 
-GeoWCS implements a comprehensive XCTest/XCUITest testing infrastructure aligned with Apple's native testing ecosystem. This document describes the test strategy, architecture, and execution procedures.
+GeoWCS uses XCTest and XCUITest as the primary testing stack for iOS code. The repo follows a layered model:
 
-For the unified outside-in + contract-first + XCTest operating model, see `TESTING_FUSION_HANDBOOK.md`.
+- fast unit tests for business logic
+- integration tests for subsystem boundaries and adapters
+- a small UI smoke suite for critical user journeys
 
-## Why XCTest/XCUITest?
+For the full outside-in TDD and contract-first operating model, see `TESTING_FUSION_HANDBOOK.md`.
 
-For native Swift iOS applications, XCTest is the authoritative choice because:
+## Why XCTest And XCUITest
 
-- **Native Integration**: Built into Xcode with zero external dependencies
-- **Lower Flakiness**: Direct Framework access vs. black-box approaches (Appium)
-- **Performance**: Tests run at full speed with accurate timing
-- **Accessibility**: XCUITest uses native accessibility APIs (not DOM-based)
-- **CI/CD**: Seamless GitHub Actions, Azure Pipelines, GitLab CI integration
-- **Cost**: No per-device licensing or cloud infrastructure required
+For a native Swift iOS app, XCTest is the default choice because it is built into Xcode, integrates directly with simulator execution, produces first-class result bundles, and avoids the extra flakiness and infrastructure overhead of browser-style or cross-platform black-box tools.
 
-**When to add Appium**: Only when testing cross-platform device farms or external black-box scenarios; not primary.
+Use XCUITest only where end-to-end confidence is worth the runtime and maintenance cost. Most behavioral coverage should remain in unit and integration layers.
 
-## Test Pyramid Architecture
+## Test Pyramid
 
-```
-           ┌─────────────────┐
-           │   UI/E2E Tests  │  ~10 critical flows
-           │  (XCUITest)     │  Lower coverage, higher risk
-           └─────────────────┘
-                  △
-                 ╱ ╲
-        ┌───────────────────┐
-        │ Integration Tests │  ~25 integration scenarios
-        │  (XCTest)         │  Subsystem boundaries
-        └───────────────────┘
-               △
-              ╱ ╲
-    ┌──────────────────────┐
-    │  Unit Tests          │  ~80 unit test cases
-    │ (XCTest)             │  Pure logic, fast
-    └──────────────────────┘
-```
+Recommended target mix:
 
-## Test Layers
+- 70-80% unit tests
+- 15-20% integration and contract-boundary tests
+- 5-10% UI smoke tests
 
-### 1. Unit Tests (XCTest)
+This matches the current repository direction:
 
-**Location**: `GeoWCSTests/Unit/`
+- `GeoWCSTests/Unit/` for pure logic
+- `GeoWCSTests/Integration/` for subsystem flows
+- `GeoWCSTests/DementiaMedia/` for feature-specific unit, integration, quality, and performance suites
+- `GeoWCSTests/RokMaxCreative/` for DeArtsWCS-focused coverage
+- `GeoWCSUITests/` for critical UI paths
 
-**Focus**: Pure logic with no network, UI, or external dependencies.
+## Current Test Areas
 
-**Key Modules**:
-- `SafetyEngineTests.swift` (40+ test cases)
-  - SOS state transitions
-  - Geofence evaluation logic
-  - Check-in timer state machine
-  - Permission rule evaluation
-  - Circle membership rules
+### Core Unit Tests
 
-- `CheckInTimerTests.swift` (30+ test cases)
-  - Timer creation and state management
-  - Missed check-in detection
-  - Reset and clear operations
-  - Persistence and recovery
-  - Scheduling and reminders
+Representative coverage includes:
 
-**Coverage Target**: 80% initial, 90%+ mature
+- `GeoWCSTests/Unit/CheckInTimerTests.swift`
+- `GeoWCSTests/Unit/SafetyEngineTests.swift`
+- `GeoWCSTests/DementiaMedia/Unit/*.swift`
+- `GeoWCSTests/RokMaxCreative/*Tests.swift` where tests exercise isolated app logic
 
-**Run Locally**:
+Focus these tests on rules, state transitions, validation, transformations, and framework-independent behavior.
+
+### Integration Tests
+
+Representative coverage includes:
+
+- `GeoWCSTests/Integration/TrackerIntegrationTests.swift`
+- `GeoWCSTests/DementiaMedia/Integration/*.swift`
+- `GeoWCSTests/RokMaxCreative/DeArtsWCSSeedModeIntegrationTests.swift`
+- `GeoWCSTests/RokMaxCreative/DeArtsWCSIntegrationTests.swift`
+
+These tests should verify component boundaries such as location tracking, persistence, media adapters, and service translation behavior.
+
+### UI Smoke Tests
+
+Representative UI coverage includes:
+
+- `GeoWCSUITests/GeoWCSCriticalFlowsUITests.swift`
+- `GeoWCSUITests/DeArtsWCSCriticalFlowsUITests.swift`
+- `GeoWCSUITests/DementiaMedia/*.swift`
+
+Keep UI scope intentionally narrow. Use it for launch, onboarding, sign-in/session restoration, core task completion, and other release-critical flows.
+
+## Test Runner
+
+The canonical local entry point is:
+
 ```bash
-./scripts/run-tests.sh unit
+bash scripts/run-tests.sh [unit|integration|ui|dearts|coverage|performance|all]
 ```
 
-### 2. Integration Tests (XCTest)
+Supported modes:
 
-**Location**: `GeoWCSTests/Integration/`
+- `unit`: runs the core unit suite selected in the script
+- `integration`: runs the core integration suite selected in the script
+- `ui`: runs the UI suite after preparing a clean simulator
+- `dearts`: runs the focused DeArtsWCS sweep
+- `coverage`: runs the full suite with coverage enabled
+- `performance`: runs the performance test pass
+- `all`: runs unit, integration, and UI suites
 
-**Focus**: Subsystem boundary testing (CLLocationManager → Tracker → ViewModel).
+The script writes logs and artifacts to:
 
-**Key Modules**:
-- `TrackerIntegrationTests.swift` (25+ test cases)
-  - Location manager → tracker state flow
-  - Tracker state → CloudKit sync
-  - Geofence events → notifications
-  - Background/foreground transitions
-  - Offline recovery and relaunch
-  - Accuracy filtering and history recording
+- `build/test-results/`
+- `build/coverage/`
+- `build/DerivedData/`
 
-**Scenarios**:
-```
-Location Update → Tracker State → ViewModel Update
-       ↓              ↓               ↓
-    CLLocation    TrackerState    UI Refresh
-       ↓              ↓               ↓
-    Accuracy      Persistence    New Marker
-    Filter        & Sync         on Map
-```
+## Local Commands
 
-**Coverage Target**: 70% initial, 85%+ mature
+Run the main suites with:
 
-**Run Locally**:
 ```bash
-./scripts/run-tests.sh integration
+bash scripts/run-tests.sh unit
+bash scripts/run-tests.sh integration
+bash scripts/run-tests.sh ui
+bash scripts/run-tests.sh dearts
+bash scripts/run-tests.sh coverage
+bash scripts/run-tests.sh all
 ```
 
-### 3. UI/E2E Tests (XCUITest)
+The UI runner resets and boots an `iPhone 17 Pro Max` simulator automatically and then targets it by UDID for stability.
 
-**Location**: `GeoWCSUITests/`
+## Workspace Tasks
 
-**Focus**: Highest-risk user flows automated end-to-end.
+The workspace also defines task-based entry points:
 
-**Key Flows** (from `GeoWCSCriticalFlowsUITests.swift`):
+- `Xcode Build`
+- `Run Simulator (iPhone 17 Pro Max)`
+- `DeArtsWCS Unit+Integration`
+- `DeArtsWCS UI Flows`
+- `DeArtsWCS Full Test Sweep`
 
-1. **First Launch Permissions**
-   - Location permission alert
-   - Notification permission alert
-   - Verification of main content
+Use these when you want repeatable IDE-triggered execution without manually typing the shell commands.
 
-2. **Create Trusted Circle**
-   - Circle creation form
-   - Member addition with phone validation
-   - Circle persistence verification
+## CI Gates
 
-3. **Start Live Tracking**
-   - Navigate to circle
-   - Start live tracking
-   - Verify map and member locations
-   - Verify tracking status UI
+The current repo-aligned GitHub Actions workflows are:
 
-4. **Check-In Timer**
-   - Arm check-in timer
-   - Verify countdown display
-   - Simulate missed check-in
+- `.github/workflows/testing-gates.yml`
+- `.github/workflows/dearts-tests.yml`
 
-5. **SOS Activation**
-   - Arm SOS
-   - Trigger SOS with long-press
-   - Confirm activation dialog
-   - Verify emergency notifications
+`testing-gates.yml` is the main quality gate:
 
-6. **Geofence Creation**
-   - Create new geofence
-   - Set radius and alerts
-   - Save and verify in list
+- runs unit tests on pull requests and release-related pushes
+- runs integration tests on pull requests and release-related pushes
+- runs a transitional contract-boundary gate using the integration suite
+- runs UI smoke tests on pushes to `master` and `release/**`
 
-7. **Audio Recording**
-   - Start audio recording
-   - Verify recording state
-   - Stop and playback
-   - Share recording
+`dearts-tests.yml` is the focused DeArtsWCS workflow and executes:
 
-8. **Premium Feature Gating**
-   - Verify free features available
-   - Attempt premium feature
-   - Verify upsell prompt
-
-9. **Background/Foreground**
-   - Start tracking in foreground
-   - Move to background
-   - Return to foreground
-   - Verify state recovery
-
-10. **Location History**
-    - Navigate to history
-    - Verify entries loaded
-    - Tap entry for details
-    - Verify timestamp and location
-
-**Coverage Target**: Top 10 critical flows, expandable to 20+
-
-**Run Locally**:
 ```bash
-# Requires simulator running
-./scripts/run-tests.sh ui
+bash scripts/run-tests.sh dearts
 ```
 
-## Test Infrastructure
+An additional broader workflow exists at `.github/workflows/ci-tests.yml`, but the shell-runner-based gates above are the ones currently aligned with the repository test script.
 
-### Directory Structure
+## Coverage And Quality Expectations
 
-```
-GeoWCS/
-├── GeoWCSTests/
-│   ├── Unit/
-│   │   ├── SafetyEngineTests.swift
-│   │   └── CheckInTimerTests.swift
-│   └── Integration/
-│       └── TrackerIntegrationTests.swift
-├── GeoWCSUITests/
-│   └── GeoWCSCriticalFlowsUITests.swift
-├── scripts/
-│   └── run-tests.sh
-├── .github/workflows/
-│   └── ci-tests.yml
-└── build/
-    ├── DerivedData/
-    ├── test-results/
-    └── coverage/
-```
+Initial goals:
 
-### Test Plans (Xcode)
+- critical logic: 80%+
+- view-model and presentation logic: 70%+
+- critical UI flows: small but stable smoke coverage
+- crash-free behavior: release gating priority
 
-Each test type is organized in Xcode Test Plans:
-
-- **UnitTests.xctestplan**: Unit test configuration
-- **IntegrationTests.xctestplan**: Integration test configuration
-- **UITests.xctestplan**: UI test configuration
-- **PerformanceTests.xctestplan**: Performance benchmark configuration
-
-### Test Helpers
-
-**Location**: Within each test file
-
-```swift
-// SafetyEngine - pure logic implementation
-class SafetyEngine { }
-
-// TrackerIntegration - tracker + location manager mock
-class TrackerIntegration { }
-
-// MockCLRegion - geofence mocking
-class MockCLRegion: CLRegion { }
-```
-
-## Running Tests
-
-### Local Execution
-
-**Run all tests**:
-```bash
-./scripts/run-tests.sh all
-```
-
-**Run DeArtWCS focused suite**:
-```bash
-./scripts/run-tests.sh dearts
-```
-
-**Run specific layer**:
-```bash
-./scripts/run-tests.sh unit          # Unit tests only
-./scripts/run-tests.sh integration   # Integration tests only
-./scripts/run-tests.sh ui            # UI tests only
-./scripts/run-tests.sh dearts        # DeArtWCS-focused tests only
-./scripts/run-tests.sh coverage      # All tests + coverage
-```
-
-**Run in Xcode**:
-```bash
-# Product → Test (⌘U)
-# Or select specific test class and run
-```
-
-**Run on commanded device**:
-```bash
-./scripts/run-tests.sh ui --device "iPhone SE (3rd generation)"
-```
-
-### CI/CD Pipeline
-
-GitHub Actions workflow: `.github/workflows/ci-tests.yml`
-
-DeArtWCS-focused workflow: `.github/workflows/dearts-tests.yml`
-
-### DeArtWCS Focused Suite
-
-The DeArtWCS-focused suite runs a deterministic subset scoped to RokMaxCreative/DeArtsWCS:
-
-- `GeoWCSTests/DeArtsWCSTDDScaffoldTests`
-- `GeoWCSTests/DeArtsWCSAppTypesScaffoldTests`
-- `GeoWCSTests/DeArtsWCSSeedModeIntegrationTests`
-- `GeoWCSUITests/DeArtsWCSCriticalFlowsUITests`
-
-Deterministic UI mode is enabled by launch environment in UI tests:
-
-- `DEARTSWCS_UI_TEST_MODE=1`
-
-This mode seeds stable initial app data for reliable UI assertions.
-
-**Triggers**:
-- Push to master/develop/feature/*
-- Pull requests to master/develop
-- Nightly schedule (2 AM UTC)
-
-**Jobs**:
-1. **Lint** - SwiftLint + format checks
-2. **Build** - Compile for simulator
-3. **Unit Tests** - Run unit test suite
-4. **Integration Tests** - Run integration suite
-5. **UI Tests** - Run critical flows
-6. **Coverage** - Generate coverage report
-7. **Performance** - Nightly benchmarks
-8. **Security** - SwiftLint security rules + secret scanning
-9. **Test Report** - Summary and artifact collection
-10. **Release Gate** - Final checks for master branch
-
-#### CI Pipeline Execution
-
-```
-Push to master/develop
-       ↓
-[Lint] → [Build] → ┬─→ [Unit Tests]
-                   ├─→ [Integration Tests]
-                   └─→ [UI Tests]
-                         ↓
-                   [Coverage Report]
-                         ↓
-                   [Security Scan]
-                         ↓
-                   [Test Summary]
-                         ↓
-                   [Release Gate] (master only)
-```
-
-**Estimated Run Time**: 
-- PR builds: ~15 minutes (unit + integration + critical UI tests)
-- Nightly: ~30 minutes (full suite + performance + extended UI tests)
-
-## Coverage Goals
-
-| Category | Initial | Mature |
-|----------|---------|--------|
-| Critical Logic | 80%+ | 90%+ |
-| View Models | 70%+ | 85%+ |
-| UI Flows | 10 flows | 20 flows |
-| Crash-Free | 99.5%+ | 99.8%+ |
-
-**Critical logic** includes:
-- Safety rule evaluation
-- SOS state transitions
-- Geofence math
-- Permission mapping
-- Timer state machine
-- Phone validation
-
-## Performance Benchmarks
-
-Performance tests run nightly in `PerformanceTests.xctestplan`:
-
-- **App Launch**: < 2.0 seconds
-- **Map Render**: < 500ms
-- **Location Update**: < 100ms latency
-- **History Load**: < 1.0 second (500 entries)
-- **Geofence Calculation**: < 50ms
-
-## Release Gates
-
-A build must pass ALL gates before shipping:
-
-```
-✓ Swift compilation (no errors)
-✓ All unit tests GREEN
-✓ All integration tests GREEN
-✓ Critical UI tests GREEN (simulator)
-✓ Code coverage ≥ 80%
-✓ No security vulnerabilities
-✓ No SwiftLint regressions
-✓ Performance within tolerance
-```
-
-**Master Branch**: Automatic release gate on push
-
-**Release Candidate**: Manual gate verification before App Store submission
+Coverage is useful, but not sufficient by itself. Prioritize strong coverage on domain logic, mapping, and failure behavior over broad but shallow line execution.
 
 ## Debugging Failed Tests
 
-### Unit Test Failures
+### General Approach
+
+1. Reproduce the failure with the smallest runnable scope.
+2. Read the corresponding log in `build/test-results/`.
+3. Inspect the `.xcresult` bundle for screenshots, failures, and diagnostics.
+4. Fix the root cause instead of retrying or adding sleeps.
+
+### Useful Commands
+
+Run a single XCTest class directly:
 
 ```bash
-# Re-run with verbose logging
-xcodebuild test -scheme GeoWCS -testPlan UnitTests -verbose
-
-# Check specific test class
-xcodebuild test -scheme GeoWCS -testPlan UnitTests -only-testing "GeoWCSTests/SafetyEngineTests"
-
-# Debug in Xcode
-# 1. Open test file
-# 2. Click diamond icon next to test
-# 3. Click to run with debugger (▶|)
+xcodebuild test \
+  -project GeoWCS.xcodeproj \
+  -scheme GeoWCS \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max' \
+  -only-testing:GeoWCSTests/SafetyEngineTests
 ```
 
-### Integration Test Failures
+Run a single UI test class directly:
 
 ```bash
-# Check persistence/storage issues
+xcodebuild test \
+  -project GeoWCS.xcodeproj \
+  -scheme GeoWCS \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max' \
+  -only-testing:GeoWCSUITests/GeoWCSCriticalFlowsUITests
+```
+
+Inspect simulator app data when needed:
+
+```bash
 xcrun simctl get_app_container booted com.wcs.GeoWCS data
-
-# Inspect CloudKit sync state
-# Xcode → Schemes → Edit Scheme → Run → Arguments:
-# -com.apple.CoreData.ConcurrencyDebug 1
 ```
 
-### UI Test Failures
+### UI Failures
 
-```bash
-# Take screenshot on failure
-xcodebuild test -scheme GeoWCS -testPlan UITests -screenshot-on-failure
+When UI tests fail:
 
-# Video recording
-xcodebuild test -scheme GeoWCS -testPlan UITests -record-play-back
+- check the result bundle for screenshots
+- verify accessibility identifiers and waits
+- confirm the simulator was reset cleanly
+- prefer explicit waits and expectations over hardcoded timing
 
-# Verbose logging
-xcodebuild test -scheme GeoWCS -testPlan UITests -verbose -resultBundlePath build/UITests.xcresult
-
-# Check accessibility inspector
-# Xcode → Accessibility Inspector (Cmd+Option+Z)
-```
+Do not fix flaky UI tests by increasing arbitrary sleeps unless there is no stable synchronization point.
 
 ## Best Practices
 
-### ✅ Do
+Do:
 
-- **Isolate tests**: Each test is independent, no shared state
-- **Use clear names**: `test_WhenCondition_ThenExpectedResult()`
-- **Mock external dependencies**: Network, location, notifications
-- **Arrange-Act-Assert**: Setup → Execute → Verify pattern
-- **One assertion per happy path**: Easier debugging
-- **Test edge cases**: Zero values, negatives, nil, bounds
-- **Use snapshot tests**: UI layouts with `XCTestDynamicOverlay`
+- keep tests isolated
+- use descriptive names
+- create fresh systems under test
+- use protocol seams for external dependencies
+- verify behavior, not implementation details
+- add one regression test for each production bug
+- prefer expectations to raw sleeps
 
-### ❌ Don't
+Do not:
 
-- **UI tests for all logic**: Keep logic in unit tests
-- **Network calls in tests**: Mock with `URLSession.shared` mock
-- **Hardcoded waits**: Use `XCTestExpectation` instead
-- **Test private methods**: Test public interface
-- **Ignore flaky tests**: Fix root cause, don't retry
-- **Long async chains**: Break into smaller, mockable units
+- move logic-heavy coverage into UI tests
+- allow real network calls in routine tests
+- depend on shared mutable state
+- test private methods directly
+- accept flakiness as normal
+- create giant all-purpose mocks
 
-## Example: Adding a New Test
+## Example Workflow For New Features
 
-```swift
-// SafetyEngineTests.swift
+1. Start with one failing test for user-visible behavior or core logic.
+2. Implement the smallest production change to pass.
+3. Add integration coverage at boundaries if the feature touches persistence, location, media, or remote services.
+4. Add UI coverage only if the journey is release-critical.
+5. Refactor while keeping the suite green.
 
-func testNewSOSFeature() {
-    // Arrange
-    let engine = SafetyEngine()
-    
-    // Act
-    engine.armSOS()
-    
-    // Assert
-    XCTAssertTrue(engine.isSOSActive)
-}
-```
+## Troubleshooting Notes
 
-Run it:
-```bash
-xcodebuild test -scheme GeoWCS -testPlan UnitTests \
-  -only-testing "GeoWCSTests/SafetyEngineTests/testNewSOSFeature"
-```
-
-## Continuous Integration Integration
-
-### GitHub Actions Status Badge
-
-Add to README.md:
-```markdown
-![CI Tests](https://github.com/[owner]/GeoWCS/actions/workflows/ci-tests.yml/badge.svg)
-```
-
-### Pre-commit Hook
-
-```bash
-# .git/hooks/pre-commit
-#!/bin/bash
-./scripts/run-tests.sh unit || exit 1
-```
-
-### Release PR Checklist
-
-```markdown
-- [ ] All tests passing (CI green)
-- [ ] Code coverage ≥ 80%
-- [ ] Manual smoke test on device
-- [ ] Performance benchmarks reviewed
-- [ ] Security scan cleared
-```
-
-## Testing Roadmap
-
-### Phase 1 (Current)
-- ✅ Unit test foundation (SafetyEngine, CheckInTimer)
-- ✅ Integration test foundation (Tracker)
-- ✅ Critical UI tests (10 flows)
-- ✅ CI/CD pipeline (GitHub Actions)
-
-### Phase 2 (Q2 2026)
-- 🔲 Expand UI tests to 20 flows
-- 🔲 Add performance regression tracking
-- 🔲 Snapshot testing for UI layouts
-- 🔲 E2E testing on physical devices
-
-### Phase 3 (Q3 2026)
-- 🔲 Appium cloud matrix testing
-- 🔲 Android test parity
-- 🔲 Load testing with 1000+ users
-- 🔲 Security penetration testing
-
-## Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| Tests pass locally, fail in CI | Ensure simulator is warm; add sleep(1) after app launch |
-| Flaky UI tests | Use `waitForExistence` instead of assertions; check accessibility |
-| Slow test builds | Disable code signing in test scheme; use cache |
-| Permission tests fail | Restart simulator; clear app data: `xcrun simctl erase all` |
-| CloudKit sync issues | Enable verbose logging; check iCloud credentials in Xcode |
+| Issue | Preferred response |
+|---|---|
+| Tests pass locally but fail in CI | Check simulator state, result bundles, and hidden ordering dependencies |
+| Flaky UI tests | Replace timing assumptions with waits or better app state hooks |
+| Slow test runs | Keep business logic in unit tests and trim unnecessary UI coverage |
+| Permission-related failures | Reset simulator state and verify launch configuration |
+| Boundary failures | Add or tighten contract-boundary coverage instead of assuming backend behavior |
 
 ## Resources
 
-- [Apple XCTest Documentation](https://developer.apple.com/documentation/xctest)
-- [XCUITest Best Practices](https://developer.apple.com/videos/play/wwdc2021/10208/)
-- [GitHub Actions Xcode](https://github.com/marketplace/actions/run-xcodebuild-tests)
-- [Fastlane Testing Guide](https://docs.fastlane.tools/actions/scan/)
+- Apple XCTest documentation
+- Apple XCUITest documentation
+- `TESTING_FUSION_HANDBOOK.md`
+- `scripts/run-tests.sh`
 
 ## Support
 
-For testing questions or issues:
-- GitHub Issues: Label with `[testing]`
-- Email: dev@worldclassscholars.com
-- Slack: #testing channel
+For testing issues, open a repository issue tagged for testing work and include:
 
----
-
-**Last Updated**: April 2, 2026  
-**Version**: 1.0  
-**Copyright © 2026 World Class Scholars**
+- failing command or workflow
+- affected test file or suite
+- relevant log excerpt or `.xcresult` context
+- whether the failure reproduces locally and in CI

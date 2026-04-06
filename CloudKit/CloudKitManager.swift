@@ -8,6 +8,7 @@
 
 import Foundation
 import CloudKit
+import UIKit
 
 final class CloudKitManager {
     private let container: CKContainer
@@ -133,6 +134,43 @@ final class CloudKitManager {
                 ownerId: (savedRecord[CloudKitField.ownerId] as? String) ?? circle.ownerId
             )
             completion(.success(snapshot))
+        }
+    }
+
+    func saveCircle(
+        name: String,
+        members: [String],
+        recordID: CKRecord.ID?,
+        completion: @escaping (Result<CKRecord, Error>) -> Void
+    ) {
+        let ownerId = UIDevice.current.identifierForVendor?.uuidString ?? "unknown-owner"
+        let circle = CircleRecord(name: name, members: members, ownerId: ownerId)
+
+        let existingRecord = recordID.map { CKRecord(recordType: CloudKitRecordType.circle, recordID: $0) }
+            ?? CKRecord(recordType: CloudKitRecordType.circle)
+
+        existingRecord[CloudKitField.name] = circle.name as CKRecordValue
+        existingRecord[CloudKitField.members] = circle.members as CKRecordValue
+        existingRecord[CloudKitField.ownerId] = circle.ownerId as CKRecordValue
+
+        database.save(existingRecord) { savedRecord, error in
+            if let error {
+                completion(.failure(error))
+                return
+            }
+            guard let savedRecord else {
+                completion(
+                    .failure(
+                        NSError(
+                            domain: "CloudKitManager",
+                            code: -1,
+                            userInfo: [NSLocalizedDescriptionKey: "Save returned no record"]
+                        )
+                    )
+                )
+                return
+            }
+            completion(.success(savedRecord))
         }
     }
 

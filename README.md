@@ -240,13 +240,10 @@ Free → Premium Conversion Funnel:
 
 ## 📚 Documentation
 
-- **[ARCHITECTURE.md](ARCHITECTURE.md)**: System design, data models, auth flows
-- **[FEATURES.md](FEATURES.md)**: Feature descriptions, roadmap, limitations
-- **[API.md](API.md)**: Complete REST API documentation
-- **[DEPLOYMENT.md](DEPLOYMENT.md)**: Dev, staging, production deployment guides
-- **[CONTRIBUTING.md](CONTRIBUTING.md)**: How to contribute code and features
+- **[TESTING.md](TESTING.md)**: Repo-accurate test commands, suites, and CI gates
+- **[TESTING_FUSION_HANDBOOK.md](TESTING_FUSION_HANDBOOK.md)**: Outside-in TDD, contract-first, and XCTest operating model
+- **[AUTH_PROVIDER_SETUP.md](AUTH_PROVIDER_SETUP.md)**: Google/Apple/Phone/OpenAI auth and API dependency setup
 
----
 
 ## 🧪 Build & Test Status
 
@@ -261,7 +258,15 @@ xcodebuild build -project GeoWCS.xcodeproj
 # Result: ✅ BUILD SUCCEEDED
 
 # Simulator Launch
+
+# iOS Test Suites
+bash scripts/run-tests.sh unit
+bash scripts/run-tests.sh integration
+bash scripts/run-tests.sh ui
+bash scripts/run-tests.sh dearts
+bash scripts/run-tests.sh coverage
 xcrun simctl launch "iPhone 17 Pro Max" com.wcs.GeoWCS
+Use `TESTING.md` for the current repo test matrix and workflow gates. Use `TESTING_FUSION_HANDBOOK.md` for the higher-level testing strategy and design rules.
 # Result: ✅ App launched (PID 36110)
 ```
 

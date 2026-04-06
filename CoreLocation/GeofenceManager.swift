@@ -53,6 +53,11 @@ final class GeofenceManager: NSObject, ObservableObject, CLLocationManagerDelega
             print("Notification permission granted: \(granted)")
         }
     }
+
+    func requestAuthorization() {
+        locationManager.requestWhenInUseAuthorization()
+        requestNotificationAccess()
+    }
     
     func addGeofence(lat: Double, lng: Double, radius: Double, id: String) {
         let center = CLLocationCoordinate2D(latitude: lat, longitude: lng)
@@ -67,6 +72,23 @@ final class GeofenceManager: NSObject, ObservableObject, CLLocationManagerDelega
         } else {
             geofences.insert(GeofenceConfig(id: id, center: center, radius: radius), at: 0)
         }
+    }
+
+    func startMonitoring(name: String, center: CLLocationCoordinate2D, radius: Double) {
+        addGeofence(
+            lat: center.latitude,
+            lng: center.longitude,
+            radius: radius,
+            id: name
+        )
+    }
+
+    func stopMonitoring() {
+        for region in locationManager.monitoredRegions {
+            locationManager.stopMonitoring(for: region)
+        }
+        geofences.removeAll()
+        appendEvent("Stopped monitoring all geofences")
     }
 
     func removeGeofence(id: String) {

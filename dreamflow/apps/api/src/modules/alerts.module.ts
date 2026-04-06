@@ -13,7 +13,6 @@ import {
   Logger,
   OnModuleDestroy
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiForbiddenResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { Queue } from 'bullmq';
 import { IsIn, IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
 import { AlertsService } from './alerts/alerts.service';
@@ -58,10 +57,6 @@ function isFiniteCoordinate(value: unknown): value is number {
 }
 
 @Controller('alerts')
-@ApiTags('alerts')
-@ApiBearerAuth()
-@ApiUnauthorizedResponse({ description: 'Missing or invalid auth credentials.' })
-@ApiForbiddenResponse({ description: 'Authenticated user lacks required role.' })
 class AlertsController {
   constructor(private alertsService: AlertsService) {}
 

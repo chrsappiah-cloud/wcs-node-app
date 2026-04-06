@@ -1,3 +1,5 @@
+<!-- markdownlint-disable -->
+
 # GeoWCS Deployment Guide
 
 ## Overview
@@ -342,22 +344,33 @@ xcodebuild archive \
   -derivedDataPath ./build
 
 # Export IPA with App Store certificate
-xcodebuild -exportArchive \
+env PATH="/usr/bin:/bin:/usr/sbin:/sbin:/Applications/Xcode.app/Contents/Developer/usr/bin" xcodebuild -exportArchive \
   -archivePath ./GeoWCS-prod.xcarchive \
   -exportOptionsPlist export-appstore.plist \
-  -exportPath ./build
+  -exportPath ./build \
+  -allowProvisioningUpdates
+
+# NOTE:
+# The PATH prefix above avoids rsync client/server mismatches that can cause
+# xcodebuild export failures such as "error: exportArchive Copy failed".
+
+# Required App Store Connect auth values
+export APP_STORE_CONNECT_KEY="<KEY_ID>"
+export APP_STORE_CONNECT_ISSUER="<ISSUER_ID>"
 
 # Validate
 xcrun altool --validate-app \
   -f build/GeoWCS.ipa \
   -t ios \
-  --apiKey $APP_STORE_CONNECT_KEY
+  --apiKey $APP_STORE_CONNECT_KEY \
+  --apiIssuer $APP_STORE_CONNECT_ISSUER
 
 # Submit to App Store
 xcrun altool --upload-app \
   -f build/GeoWCS.ipa \
   -t ios \
-  --apiKey $APP_STORE_CONNECT_KEY
+  --apiKey $APP_STORE_CONNECT_KEY \
+  --apiIssuer $APP_STORE_CONNECT_ISSUER
 ```
 
 #### 6. Verify Production Deployment
@@ -475,3 +488,351 @@ az autoscale create \
 - Deployment issues: deployment@geowcs.dev
 - Infrastructure: infra@geowcs.dev
 - Slack: #deployment-alerts
+
+---
+
+## App Store Review Notes (Ready to Paste)
+
+Use the text below in App Store Connect for the build uploaded on 2026-04-03.
+
+### Notes for App Review
+
+GeoWCS helps trusted contacts share live location, manage circles, and receive safety alerts.
+
+Core flows to test:
+
+1. Sign in with phone verification.
+2. Create or join a circle.
+3. Open live map and verify member location updates.
+4. Configure geofence or safety alerts.
+
+### Demo Account / Access
+
+No preconfigured account is required. Reviewer can create a new account using phone verification during review.
+
+If additional verification support is needed during review, contact: deployment@geowcs.dev
+
+### Hardware and Permissions Required
+
+GeoWCS requires these iOS permissions for core safety functionality:
+
+- Location: Always or While Using the App
+- Notifications: Allowed
+- Cellular/Wi-Fi data access
+
+If location or notifications are denied, certain features (live tracking, geofence alerts, and safety notifications) are limited by design.
+
+### Content and Compliance Notes
+
+- No hidden or locked features are required for review.
+- The app does not require external hardware.
+- Any emergency or safety messaging is informational and not a substitute for emergency services.
+
+### Reviewer Quick Path
+
+1. Install build from TestFlight.
+2. Complete phone sign-in.
+3. Create a circle and open the map.
+4. Enable location + notifications when prompted.
+5. Trigger a location update and verify circle visibility.
+
+---
+
+## App Store Listing Copy (Ready to Paste)
+
+Use this text in App Store Connect for the current GeoWCS release.
+
+### App Name
+
+GeoWCS
+
+### Subtitle (30 chars max)
+
+Safety Circles and Live Map
+
+### Promotional Text (170 chars max)
+
+Stay connected with trusted contacts using live location, check-ins, geofence alerts, SOS, and private on-device audio evidence capture when safety matters most.
+
+### Keywords (100 chars max)
+
+safety,location,tracking,geofence,sos,checkin,family,friends,alerts,emergency,map,security
+
+### Description
+
+GeoWCS helps you stay safer with trusted contacts in real time.
+
+Create a private safety circle, share location when you choose, and get alerts when people arrive or leave key places. In urgent moments, use SOS and capture audio evidence directly on your device.
+
+Key features:
+- Real-time location sharing with trusted circles
+- Geofence arrival and departure alerts
+- One-tap check-ins for daily safety routines
+- SOS alerts with location context
+- Private on-device audio recording and playback
+- Smart notifications for circle and safety activity
+
+Built with privacy in mind:
+- You control who can see your location
+- Location sharing can be turned on/off
+- Audio recordings stay on device by default
+
+Premium includes:
+- Live map with friend overlays
+- Unlimited circles
+- Unlimited geofences
+
+Whether you are commuting, meeting up, traveling, or checking on family, GeoWCS keeps trusted people connected when it matters most.
+
+### What's New in This Version
+
+- Initial public release of GeoWCS.
+- Real-time trusted-circle location sharing.
+- Geofence alerts for arrivals and departures.
+- SOS safety alert flow.
+- One-tap check-ins and smart safety notifications.
+- On-device audio evidence recording and playback.
+- Performance and reliability improvements for map and alert flows.
+
+### Support URL
+
+https://geowcs.dev/support
+
+### Marketing URL (optional)
+
+https://geowcs.dev
+
+### Privacy Policy URL
+
+https://geowcs.dev/privacy
+
+---
+
+## App Store Connect Submission Runbook (Final Step)
+
+Use this checklist after pasting the Final Recommended listing copy.
+
+### 1. Build Selection
+
+- Open App Store Connect -> My Apps -> GeoWCS -> App Store -> iOS App
+- In Build section, select the processed build uploaded on 2026-04-03
+- Confirm version/build mapping is correct before saving
+
+### 2. App Information
+
+- Category: choose the most accurate primary category for personal safety/location coordination
+- Content Rights: confirm rights to all content/assets
+- Age Rating: complete all required questionnaire items
+
+### 3. App Privacy
+
+- Open App Privacy and ensure data collection answers match actual app behavior
+- Ensure privacy labels are consistent with location, notifications, account, and optional audio features
+
+### 4. Review Information
+
+- Paste review notes from the section above
+- Contact email: deployment@geowcs.dev
+- Add contact phone if requested in your organization process
+- If reviewer sign-in is needed, confirm self-signup via phone verification is acceptable
+
+### 5. Version Release Option
+
+- Choose one:
+  - Manual release (recommended for first launch control)
+  - Automatic release after approval
+  - Scheduled release (set date/time)
+
+### 6. Submit for Review
+
+- Click Add for Review (if shown)
+- Resolve any blocking warnings
+- Click Submit for Review
+
+### 7. Post-Submission Monitoring
+
+- Track status: Waiting For Review -> In Review -> Pending Developer Release/Ready for Sale
+- If Apple requests clarification, respond in Resolution Center with concise, factual answers
+
+---
+
+## App Store Listing Copy (Variant B - Conversion Focus)
+
+Use this alternative if you want a more direct, everyday-safety tone.
+
+### App Name
+
+GeoWCS
+
+### Subtitle (30 chars max)
+
+Trusted Safety Circles
+
+### Promotional Text (170 chars max)
+
+Know your people are okay with live location, quick check-ins, geofence alerts, SOS, and private audio capture for important moments.
+
+### Keywords (100 chars max)
+
+safety app,live location,sos,check in,geofence,family safety,friend tracker,emergency,alerts,privacy
+
+### Description
+
+Feel safer together with GeoWCS.
+
+GeoWCS helps you stay connected to the people you trust most. Create a private circle, share live location on your terms, and get alerts when someone arrives or leaves important places.
+
+When things feel wrong, use SOS to quickly notify your circle. You can also capture audio evidence on-device for personal safety records.
+
+What you can do with GeoWCS:
+- Share location with trusted contacts in real time
+- Receive arrival and departure geofence alerts
+- Send one-tap check-ins and SOS alerts
+- Get smart safety notifications
+- Record and replay private audio evidence
+
+Privacy first:
+- You choose when location sharing is active
+- You choose who sees your updates
+- Audio stays on your device by default
+
+Premium unlocks:
+- Live map overlays for circle members
+- Unlimited circles
+- Unlimited geofences
+
+Whether it is a late commute, a solo trip, or daily family coordination, GeoWCS helps your trusted people stay informed and connected.
+
+### What's New in This Version
+
+- First public release of GeoWCS.
+- Trusted-circle live location sharing.
+- Geofence arrival/departure alerts.
+- SOS alert flow with location context.
+- Fast check-ins and smart notifications.
+- On-device audio evidence recording.
+- Stability and performance improvements.
+
+---
+
+## App Store Listing Copy (Variant C - Review Conservative)
+
+Use this option for a more neutral, policy-friendly App Store tone.
+
+### App Name
+
+GeoWCS
+
+### Subtitle (30 chars max)
+
+Location Sharing for Circles
+
+### Promotional Text (170 chars max)
+
+Coordinate with trusted contacts using location sharing, check-ins, geofence alerts, and optional on-device audio recording.
+
+### Keywords (100 chars max)
+
+location sharing,check in,geofence,contacts,circles,alerts,map,safety,privacy,family
+
+### Description
+
+GeoWCS is a coordination app for trusted contacts.
+
+Create a circle, share your location when enabled, and receive notifications for arrivals, departures, and check-ins. The app also provides an SOS alert flow and optional on-device audio recording.
+
+Main capabilities:
+- Location sharing with selected contacts
+- Geofence arrival and departure notifications
+- Manual check-ins
+- SOS alert to circle members
+- On-device audio recording and playback
+
+Privacy and controls:
+- Location sharing is user controlled
+- Access is limited to selected contacts
+- Audio recordings are stored on device by default
+
+Subscription options:
+- Free tier includes core check-ins, alerts, and recording
+- Premium includes live map overlays and expanded circle limits
+
+GeoWCS is intended for personal coordination and awareness. It is not an emergency response service.
+
+### What's New in This Version
+
+- Initial App Store release.
+- Circle-based location sharing.
+- Geofence notifications.
+- SOS alert flow.
+- Check-ins and push notifications.
+- On-device audio recording.
+
+---
+
+## App Store Listing Copy (Final Recommended)
+
+Use this as the default submission copy.
+
+### App Name
+
+GeoWCS
+
+### Subtitle (30 chars max)
+
+Trusted Safety Circles
+
+### Promotional Text (170 chars max)
+
+Coordinate with trusted contacts using live location, check-ins, geofence alerts, SOS, and optional on-device audio recording.
+
+### Keywords (100 chars max)
+
+safety,location sharing,check in,geofence,sos,alerts,family,friends,privacy,map,contacts
+
+### Description
+
+GeoWCS helps trusted contacts stay connected with real-time awareness.
+
+Create a private circle, share location when enabled, and receive arrival or departure notifications for important places. Send quick check-ins, trigger SOS alerts to your circle, and optionally capture audio evidence on-device.
+
+Core features:
+- Circle-based location sharing
+- Geofence arrival and departure alerts
+- One-tap check-ins
+- SOS alerts to trusted contacts
+- On-device audio recording and playback
+
+Privacy and control:
+- You control when location sharing is active
+- You choose who can view your updates
+- Audio recordings stay on your device by default
+
+Premium includes:
+- Live map overlays
+- Unlimited circles
+- Unlimited geofences
+
+GeoWCS is intended for personal safety coordination and awareness. It is not an emergency response service.
+
+### What's New in This Version
+
+- Initial public release of GeoWCS.
+- Real-time location sharing with trusted circles.
+- Geofence arrival and departure alerts.
+- SOS safety alert flow.
+- One-tap check-ins and smart notifications.
+- On-device audio evidence recording and playback.
+- Stability and performance improvements.
+
+### Support URL
+
+https://geowcs.dev/support
+
+### Marketing URL (optional)
+
+https://geowcs.dev
+
+### Privacy Policy URL
+
+https://geowcs.dev/privacy

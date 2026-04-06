@@ -10,7 +10,6 @@ import {
   UnauthorizedException
 } from '@nestjs/common';
 import { JwtModule, JwtService } from '@nestjs/jwt';
-import { ApiTags } from '@nestjs/swagger';
 import { IsString, Matches, MaxLength, Length } from 'class-validator';
 
 // ─── DTOs ────────────────────────────────────────────────────────────────────
@@ -72,7 +71,12 @@ class AuthService {
   // ── Phone OTP ───────────────────────────────────────────────────────────────
 
   async sendOtp(phone: string): Promise<{ sent: boolean }> {
-    const code = String(randomInt(0, 1_000_000)).padStart(6, '0');
+    const configuredCode = process.env.NODE_ENV === 'production'
+      ? undefined
+      : process.env.OTP_FIXED_CODE?.trim();
+    const code = configuredCode && /^\d{6}$/.test(configuredCode)
+      ? configuredCode
+      : String(randomInt(0, 1_000_000)).padStart(6, '0');
     const hash = createHmac('sha256', this.otpHmacKey).update(code).digest('hex');
 
     this.otpStore.set(phone, { hash, expiresAt: Date.now() + OTP_TTL_MS, attempts: 0 });
@@ -228,7 +232,6 @@ class AuthService {
 
 // ─── Auth Controller ──────────────────────────────────────────────────────────
 
-@ApiTags('auth')
 @Controller('auth')
 class AuthController {
   constructor(private readonly authService: AuthService) {}

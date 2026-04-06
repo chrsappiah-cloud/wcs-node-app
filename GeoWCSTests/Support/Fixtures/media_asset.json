@@ -1,0 +1,12 @@
+{
+  "id": "00000000-0000-0000-0000-000000000111",
+  "ownerID": "00000000-0000-0000-0000-000000000222",
+  "kind": "audioPrompt",
+  "title": "Calming Prompt",
+  "localURL": "file:///tmp/calming_prompt.m4a",
+  "durationSeconds": 12.5,
+  "thumbnailURL": "file:///tmp/calming_prompt_thumb.png",
+  "createdAt": 0,
+  "state": "saved",
+  "tags": ["calm", "breathing"]
+}

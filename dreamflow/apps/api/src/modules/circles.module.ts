@@ -9,7 +9,6 @@ import {
   Param,
   Post
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiForbiddenResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { IsIn, IsNumber, IsString, MaxLength, Min } from 'class-validator';
 import { CirclesService, Circle, Geofence } from './circles/circles.service';
 import { Roles } from '../common/auth/roles.decorator';
@@ -49,10 +48,6 @@ class AddGeofenceDto {
 }
 
 @Controller('circles')
-@ApiTags('circles')
-@ApiBearerAuth()
-@ApiUnauthorizedResponse({ description: 'Missing or invalid auth credentials.' })
-@ApiForbiddenResponse({ description: 'Authenticated user lacks required role.' })
 class CirclesController {
   constructor(private circlesService: CirclesService) {}
 

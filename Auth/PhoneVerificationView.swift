@@ -118,6 +118,7 @@ struct PhoneVerificationView: View {
                     .frame(height: 52)
                     .background(Color(.secondarySystemBackground))
                     .cornerRadius(12)
+                    .accessibilityIdentifier("Phone Number")
             }
 
             Text("e.g. 415 555 2671")
@@ -127,8 +128,9 @@ struct PhoneVerificationView: View {
             Button {
                 Task { await authManager.sendOtp(phone: e164Phone) }
             } label: {
-                label(text: "Send Code", loading: authManager.state == .loading)
+                label(text: "Send Verification Code", loading: authManager.state == .loading)
             }
+            .accessibilityIdentifier("Send Verification Code")
             .disabled(!phoneReady || authManager.state == .loading)
         }
     }
@@ -142,7 +144,7 @@ struct PhoneVerificationView: View {
         }()
 
         return VStack(alignment: .leading, spacing: 24) {
-            Text("Enter the code")
+            Text("Enter 6-digit code")
                 .font(.title2.bold())
 
             Text("We sent a 6-digit code to **\(phone)**.")
@@ -166,6 +168,7 @@ struct PhoneVerificationView: View {
             } label: {
                 label(text: "Verify", loading: authManager.state == .loading)
             }
+            .accessibilityIdentifier("Verify")
             .disabled(!otpComplete || authManager.state == .loading)
 
             // Resend
@@ -244,7 +247,7 @@ private struct PhoneStepHeader: View {
     var body: some View {
         HStack(spacing: 8) {
             stepDot(label: "1", active: step == .phone)
-            Rectangle().frame(height: 1).foregroundStyle(step == .otp ? .blue : .separator)
+            Rectangle().frame(height: 1).foregroundStyle(step == .otp ? .blue : Color(uiColor: .separator))
             stepDot(label: "2", active: step == .otp)
         }
         .padding(.horizontal)
@@ -253,7 +256,7 @@ private struct PhoneStepHeader: View {
     @ViewBuilder
     private func stepDot(label: String, active: Bool) -> some View {
         ZStack {
-            Circle()
+            SwiftUI.Circle()
                 .fill(active ? Color.blue : Color(.secondarySystemBackground))
                 .frame(width: 28, height: 28)
             Text(label)

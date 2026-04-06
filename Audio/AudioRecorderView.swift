@@ -3,7 +3,6 @@ import AVFoundation
 
 struct AudioRecorderView: View {
     @StateObject private var recorder = AudioRecorderManager()
-    @State private var showShareSheet = false
     @State private var recordingToShare: AudioRecording?
 
     var body: some View {
@@ -51,7 +50,7 @@ struct AudioRecorderView: View {
             } message: { error in
                 Text(error.errorDescription ?? "Unknown error")
             }
-            .sheet(isPresented: $showShareSheet, item: $recordingToShare) { recording in
+            .sheet(item: $recordingToShare) { recording in
                 ShareSheet(items: [recorder.shareRecording(recording)])
             }
         }
@@ -185,7 +184,6 @@ struct AudioRecorderView: View {
             Menu {
                 Button {
                     recordingToShare = recording
-                    showShareSheet = true
                 } label: {
                     Label("Share", systemImage: "square.and.arrow.up")
                 }
