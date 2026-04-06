@@ -497,7 +497,7 @@
   <div class="container">
     <!-- Profile Card -->
     <div class="card profile-card">
-      <img src="<%= profile.image %>" alt="<%= profile.name %>" class="profile-img">
+      <img src="<%= profile.image %>" alt="<%= profile.name %>" class="profile-img" onerror="this.onerror=null;this.src='/images/dr-chris.svg';">
       <div class="profile-info">
         <h2><%= profile.name %></h2>
         <div class="profile-title"><%= profile.title %></div>

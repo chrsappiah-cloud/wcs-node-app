@@ -18,7 +18,7 @@ function renderProfilePage(req, res) {
     title: 'Founder & CEO, World Class Scholars',
     bio: 'Global advocate for social justice in disability, mental health, dementia care, education, and creative storytelling.',
     tagline: 'Bridging research, frontline practice, lived experience, and creative storytelling to design humane services.',
-    image: '/images/dr-chris.svg',
+    image: '/images/dr-chris-photo.png',
     links: [
       {
         label: 'Personal Site',
