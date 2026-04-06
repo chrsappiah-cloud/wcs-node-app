@@ -1,0 +1,160 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" style="display:none;">
+  <!-- Colorful T-Rex Illustration -->
+  <symbol id="trex-colored" viewBox="0 0 200 180">
+    <defs>
+      <linearGradient id="trexGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#ef4444;stop-opacity:1" />
+        <stop offset="50%" style="stop-color:#dc2626;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#991b1b;stop-opacity:1" />
+      </linearGradient>
+      <linearGradient id="bellyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+      </linearGradient>
+    </defs>
+    <!-- Body -->
+    <ellipse cx="100" cy="90" rx="50" ry="40" fill="url(#trexGrad)"/>
+    <!-- Belly -->
+    <ellipse cx="100" cy="100" rx="30" ry="25" fill="url(#bellyGrad)"/>
+    <!-- Neck -->
+    <path d="M135 75 Q145 55 150 35" stroke="url(#trexGrad)" stroke-width="25" fill="none" stroke-linecap="round"/>
+    <!-- Head -->
+    <ellipse cx="155" cy="25" rx="22" ry="20" fill="url(#trexGrad)"/>
+    <!-- Snout -->
+    <ellipse cx="175" cy="22" rx="15" ry="12" fill="#dc2626"/>
+    <!-- Jaw open -->
+    <path d="M175 28 Q185 32 188 28" stroke="#fbbf24" stroke-width="3" fill="none"/>
+    <!-- Eye -->
+    <circle cx="158" cy="18" r="4" fill="#fef3c7"/>
+    <circle cx="159" cy="17" r="2" fill="#000"/>
+    <!-- Teeth -->
+    <rect x="176" y="20" width="2" height="6" fill="#fff"/>
+    <rect x="180" y="19" width="2" height="7" fill="#fff"/>
+    <rect x="184" y="20" width="2" height="6" fill="#fff"/>
+    <!-- Tail -->
+    <path d="M55 85 Q20 70 10 40" stroke="url(#trexGrad)" stroke-width="20" fill="none" stroke-linecap="round"/>
+    <!-- Front leg -->
+    <rect x="115" y="125" width="12" height="35" rx="6" fill="#8b1e1e"/>
+    <!-- Back leg -->
+    <rect x="70" y="130" width="14" height="40" rx="7" fill="#8b1e1e"/>
+    <!-- Claw on front -->
+    <path d="M121 160 L123 175" stroke="#fbbf24" stroke-width="3" stroke-linecap="round"/>
+    <!-- Spikes along back -->
+    <polygon points="100,45 98,30 102,30" fill="#fef3c7"/>
+    <polygon points="110,50 108,32 112,32" fill="#fef3c7"/>
+  </symbol>
+
+  <!-- Velociraptor Pack -->
+  <symbol id="raptor-colored" viewBox="0 0 200 160">
+    <defs>
+      <linearGradient id="raptorGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
+        <stop offset="50%" style="stop-color:#0891b2;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#164e63;stop-opacity:1" />
+      </linearGradient>
+    </defs>
+    <!-- Body -->
+    <ellipse cx="100" cy="70" rx="45" ry="35" fill="url(#raptorGrad)"/>
+    <!-- Stripe pattern -->
+    <ellipse cx="100" cy="75" rx="30" ry="20" fill="#22d3ee" opacity="0.4"/>
+    <!-- Neck -->
+    <path d="M135 60 Q150 45 160 30" stroke="url(#raptorGrad)" stroke-width="18" fill="none" stroke-linecap="round"/>
+    <!-- Head -->
+    <ellipse cx="168" cy="22" rx="18" ry="16" fill="url(#raptorGrad)"/>
+    <!-- Eye -->
+    <circle cx="160" cy="18" r="3" fill="#fef3c7"/>
+    <circle cx="161" cy="17" r="1.5" fill="#000"/>
+    <!-- Snout -->
+    <path d="M175 20 L185 18 L183 25" fill="#0891b2"/>
+    <!-- Teeth -->
+    <line x1="177" y1="22" x2="180" y2="28" stroke="#fff" stroke-width="1.5"/>
+    <line x1="181" y1="21" x2="184" y2="27" stroke="#fff" stroke-width="1.5"/>
+    <!-- Tail -->
+    <path d="M60 70 Q30 60 15 45" stroke="url(#raptorGrad)" stroke-width="16" fill="none" stroke-linecap="round"/>
+    <!-- Front legs -->
+    <rect x="110" y="100" width="10" height="35" rx="5" fill="#0891b2"/>
+    <!-- Back legs (bent) -->
+    <path d="M75 105 Q70 120 68 145" stroke="url(#raptorGrad)" stroke-width="11" fill="none" stroke-linecap="round"/>
+    <!-- Claw on foot -->
+    <polygon points="68,145 65,160 70,148" fill="#fbbf24"/>
+    <!-- Claw on front -->
+    <polygon points="115,135 112,152 118,140" fill="#fbbf24"/>
+  </symbol>
+
+  <!-- Colorful Stegosaurus -->
+  <symbol id="stego-colored" viewBox="0 0 200 160">
+    <defs>
+      <linearGradient id="stegoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#a855f7;stop-opacity:1" />
+        <stop offset="50%" style="stop-color:#9333ea;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#7e22ce;stop-opacity:1" />
+      </linearGradient>
+    </defs>
+    <!-- Body -->
+    <ellipse cx="100" cy="85" rx="55" ry="40" fill="url(#stegoGrad)"/>
+    <!-- Belly stripe -->
+    <ellipse cx="100" cy="95" rx="35" ry="25" fill="#d8b4fe" opacity="0.5"/>
+    <!-- Neck -->
+    <path d="M145 75 Q160 65 170 55" stroke="url(#stegoGrad)" stroke-width="22" fill="none" stroke-linecap="round"/>
+    <!-- Head -->
+    <ellipse cx="178" cy="48" rx="16" ry="14" fill="#a855f7"/>
+    <!-- Eye -->
+    <circle cx="172" cy="45" r="2.5" fill="#fef3c7"/>
+    <!-- Horns (tiny) -->
+    <polygon points="173,35 170,28 174,30" fill="#d8b4fe"/>
+    <polygon points="180,34 183,27 178,30" fill="#d8b4fe"/>
+    <!-- Tail -->
+    <path d="M45 80 Q20 75 8 65" stroke="url(#stegoGrad)" stroke-width="18" fill="none" stroke-linecap="round"/>
+    <!-- Tail spikes -->
+    <polygon points="15,60 10,45 18,55" fill="#d8b4fe"/>
+    <polygon points="25,65 20,50 28,60" fill="#d8b4fe"/>
+    <!-- Front leg -->
+    <rect x="125" y="120" width="12" height="32" rx="6" fill="#7e22ce"/>
+    <!-- Back leg -->
+    <rect x="67" y="125" width="12" height="32" rx="6" fill="#7e22ce"/>
+    <!-- Back plates along spine -->
+    <polygon points="75,60 70,40 80,55" fill="#d8b4fe"/>
+    <polygon points="90,55 85,32 95,50" fill="#d8b4fe"/>
+    <polygon points="105,52 100,30 110,48" fill="#d8b4fe"/>
+    <polygon points="120,55 115,35 125,50" fill="#d8b4fe"/>
+    <polygon points="135,60 130,42 140,55" fill="#d8b4fe"/>
+  </symbol>
+
+  <!-- Triceratops -->
+  <symbol id="triceratops-colored" viewBox="0 0 200 160">
+    <defs>
+      <linearGradient id="triGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+        <stop offset="50%" style="stop-color:#059669;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#047857;stop-opacity:1" />
+      </linearGradient>
+    </defs>
+    <!-- Body -->
+    <ellipse cx="100" cy="90" rx="52" ry="38" fill="url(#triGrad)"/>
+    <!-- Belly -->
+    <ellipse cx="100" cy="100" rx="32" ry="22" fill="#6ee7b7" opacity="0.6"/>
+    <!-- Neck frill -->
+    <ellipse cx="145" cy="75" rx="35" ry="28" fill="#d1fae5" opacity="0.7"/>
+    <!-- Frill pattern -->
+    <circle cx="130" cy="60" r="8" fill="#6ee7b7"/>
+    <circle cx="145" cy="55" r="7" fill="#6ee7b7"/>
+    <circle cx="160" cy="60" r="8" fill="#6ee7b7"/>
+    <circle cx="170" cy="72" r="7" fill="#6ee7b7"/>
+    <!-- Head -->
+    <ellipse cx="165" cy="90" rx="24" ry="22" fill="url(#triGrad)"/>
+    <!-- Eye -->
+    <circle cx="158" cy="85" r="3" fill="#fef3c7"/>
+    <!-- Snout -->
+    <rect x="175" y="88" width="15" height="12" rx="6" fill="#059669"/>
+    <!-- Horns -->
+    <polygon points="150,70 145,50 155,65" fill="#d1fae5"/>
+    <polygon points="160,68 158,45 165,62" fill="#d1fae5"/>
+    <polygon points="172,78 175,52 178,75" fill="#d1fae5"/>
+    <!-- Tail -->
+    <path d="M50 85 Q25 75 12 60" stroke="url(#triGrad)" stroke-width="18" fill="none" stroke-linecap="round"/>
+    <!-- Front legs -->
+    <rect x="115" y="125" width="13" height="30" rx="6" fill="#047857"/>
+    <!-- Back legs -->
+    <rect x="65" y="128" width="13" height="28" rx="6" fill="#047857"/>
+  </symbol>
+</svg>

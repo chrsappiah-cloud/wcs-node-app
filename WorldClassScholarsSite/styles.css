@@ -198,9 +198,72 @@ h1 {
   margin: 0.75rem 0 0;
 }
 
-.footer {
+.dinosaur-gallery {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.08) 0%, rgba(34, 211, 238, 0.05) 100%);
+  border-radius: 32px;
+}
+
+.gallery-intro {
+  color: #64748b;
+  max-width: 600px;
+  margin-bottom: 2rem;
+  font-size: 1.05rem;
+}
+
+.dino-grid {
+  display: grid;
+  gap: 1.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  margin-top: 2rem;
+}
+
+.dino-card {
+  padding: 1.5rem;
+  border-radius: 24px;
+  background: white;
+  border: 2px solid rgba(12, 74, 110, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
-  padding: 2rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.dino-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 24px 64px rgba(12, 74, 110, 0.15);
+  border-color: #0c4a6e;
+}
+
+.dino-illustration {
+  width: 140px;
+  height: 140px;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dino-illustration svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 4px 12px rgba(12, 74, 110, 0.12));
+  transition: filter 0.3s ease;
+}
+
+.dino-card:hover .dino-illustration svg {
+  filter: drop-shadow(0 8px 24px rgba(12, 74, 110, 0.2));
+}
+
+.dino-card h3 {
+  margin: 0.75rem 0 0.5rem 0;
+  color: #0f172a;
+}
+
+.dino-card p {
+  margin: 0;
+  font-size: 0.95rem;
   color: #64748b;
 }
 
