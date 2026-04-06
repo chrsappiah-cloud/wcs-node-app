@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>World Class Scholars | Care Tech & Inclusive Innovation</title>
     <link rel="stylesheet" href="styles.css" />
+    <script src="api-client.js"></script>
   </head>
   <body>
     <header class="hero">
@@ -270,6 +271,24 @@
             <h3>Triceratops</h3>
             <p>Protective and friendly—excellent for inclusive educational and wellness content.</p>
           </article>
+        </div>
+
+        <!-- Image Generation Section -->
+        <div class="image-generator">
+          <h3>🎨 Generate Custom Images</h3>
+          <p>Create unique, AI-generated illustrations for your care-focused projects and educational content.</p>
+          <div class="generator-form">
+            <input type="text" id="imagePrompt" placeholder="Describe your image (e.g., 'A gentle dinosaur helping a child')" maxlength="500">
+            <select id="imageStyle">
+              <option value="realistic">Realistic</option>
+              <option value="artistic">Artistic</option>
+              <option value="cartoon">Cartoon</option>
+              <option value="sketch">Sketch</option>
+            </select>
+            <button id="generateBtn" class="btn-generate">Generate Image</button>
+          </div>
+          <div id="generatedImages" class="generated-grid"></div>
+          <div id="generationStatus" class="status-message"></div>
         </div>
       </section>
 

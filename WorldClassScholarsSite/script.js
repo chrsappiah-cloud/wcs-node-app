@@ -11,4 +11,108 @@ document.addEventListener('DOMContentLoaded', function () {
       contactSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   });
+
+  // Initialize image generator
+  initializeImageGenerator();
 });
+
+/**
+ * Initialize the image generation functionality
+ */
+function initializeImageGenerator() {
+  const generateBtn = document.getElementById('generateBtn');
+  const promptInput = document.getElementById('imagePrompt');
+  const styleSelect = document.getElementById('imageStyle');
+  const statusDiv = document.getElementById('generationStatus');
+  const imagesGrid = document.getElementById('generatedImages');
+
+  if (!generateBtn) return;
+
+  // Initialize API client
+  const apiClient = new WCSApiClient();
+
+  generateBtn.addEventListener('click', async function() {
+    const prompt = promptInput.value.trim();
+    const style = styleSelect.value;
+
+    if (!prompt) {
+      showStatus('Please enter an image description', 'error');
+      promptInput.focus();
+      return;
+    }
+
+    // Disable button and show loading
+    generateBtn.disabled = true;
+    generateBtn.textContent = 'Generating...';
+    showStatus('Generating your image...', 'info');
+
+    try {
+      // Initialize API client if needed
+      if (!apiClient.token) {
+        showStatus('Connecting to API...', 'info');
+        const token = await apiClient.init();
+        if (!token) {
+          throw new Error('Failed to authenticate with API');
+        }
+      }
+
+      // Generate image
+      const result = await apiClient.generateImages({
+        prompt: prompt,
+        style: style,
+        quantity: 1
+      });
+
+      if (result && result.success) {
+        showStatus('Image generated successfully!', 'success');
+        displayGeneratedImage(result.images[0], prompt, style);
+      } else {
+        throw new Error(result?.message || 'Image generation failed');
+      }
+
+    } catch (error) {
+      console.error('Image generation error:', error);
+      showStatus(`Error: ${error.message}`, 'error');
+    } finally {
+      // Re-enable button
+      generateBtn.disabled = false;
+      generateBtn.textContent = 'Generate Image';
+    }
+  });
+
+  /**
+   * Show status message
+   */
+  function showStatus(message, type) {
+    statusDiv.textContent = message;
+    statusDiv.className = `status-message ${type}`;
+  }
+
+  /**
+   * Display generated image
+   */
+  function displayGeneratedImage(image, prompt, style) {
+    const imageCard = document.createElement('div');
+    imageCard.className = 'generated-image';
+
+    imageCard.innerHTML = `
+      <img src="${image.url}" alt="${image.alt}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22%3E%3Crect fill=%22%23e0f2fe%22 width=%22200%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%230c4a6e%22 font-family=%22sans-serif%22 font-size=%2214px%22%3EImage%20Generated%3C/text%3E%3C/svg%3E'">
+      <div class="generated-meta">
+        <p><strong>Prompt:</strong> ${prompt}</p>
+        <p><strong>Style:</strong> ${style}</p>
+        <p><strong>Generated:</strong> ${new Date(image.generated_at).toLocaleString()}</p>
+      </div>
+    `;
+
+    // Clear previous images and add new one
+    imagesGrid.innerHTML = '';
+    imagesGrid.appendChild(imageCard);
+  }
+
+  // Add enter key support for prompt input
+  promptInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter' && !generateBtn.disabled) {
+      generateBtn.click();
+    }
+  });
+}

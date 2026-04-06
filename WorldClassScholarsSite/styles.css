@@ -287,3 +287,150 @@ h1 {
     max-width: 100%;
   }
 }
+
+/* Image Generator Styles */
+.image-generator {
+  margin-top: 2rem;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  border: 1px solid rgba(12, 74, 110, 0.1);
+}
+
+.image-generator h3 {
+  color: #0c4a6e;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.image-generator > p {
+  color: #64748b;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+.generator-form {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.generator-form input,
+.generator-form select {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.75rem 1rem;
+  border: 2px solid rgba(12, 74, 110, 0.2);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: border-color 0.3s ease;
+}
+
+.generator-form input:focus,
+.generator-form select:focus {
+  outline: none;
+  border-color: #0c4a6e;
+  box-shadow: 0 0 0 3px rgba(12, 74, 110, 0.1);
+}
+
+.btn-generate {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #0c4a6e 0%, #134e7e 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.btn-generate:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(12, 74, 110, 0.3);
+}
+
+.btn-generate:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.generated-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  margin-top: 1.5rem;
+}
+
+.generated-image {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.generated-image:hover {
+  transform: translateY(-4px);
+}
+
+.generated-image img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  background: linear-gradient(135deg, #f8fafc, #e0f2fe);
+}
+
+.generated-meta {
+  padding: 1rem;
+  background: white;
+}
+
+.generated-meta p {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.status-message {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.status-message.success {
+  background: rgba(16, 185, 129, 0.1);
+  color: #065f46;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.status-message.error {
+  background: rgba(239, 68, 68, 0.1);
+  color: #991b1b;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.status-message.info {
+  background: rgba(59, 130, 246, 0.1);
+  color: #1e40af;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+@media (max-width: 768px) {
+  .generator-form {
+    flex-direction: column;
+  }
+
+  .generator-form input,
+  .generator-form select {
+    min-width: auto;
+  }
+
+  .btn-generate {
+    width: 100%;
+  }
+}
