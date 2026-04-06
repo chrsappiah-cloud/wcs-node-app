@@ -86,6 +86,18 @@ cp starters/nextjs-app-router/app/page.tsx <your-next-app>/app/page.tsx
 cp starters/nextjs-app-router/app/profile.module.css <your-next-app>/app/profile.module.css
 ```
 
+### Next.js Runnable Demo
+- Path: `starters/nextjs-demo`
+- Usage:
+
+```bash
+cd starters/nextjs-demo
+npm install
+npm run dev
+```
+
+- Open: `http://localhost:3000`
+
 ### Flutter Starter
 - Path: `starters/flutter/lib/wcs_profile_screen.dart`
 - Theme: `starters/flutter/lib/wcs_theme.dart`
@@ -108,6 +120,16 @@ MaterialApp(
   theme: WcsTheme.dark(),
   home: const WcsProfileScreen(),
 );
+```
+
+### Flutter Runnable Demo
+- Path: `starters/flutter-demo`
+- Usage:
+
+```bash
+cd starters/flutter-demo
+flutter pub get
+flutter run
 ```
 
 ## 🎯 Key Components

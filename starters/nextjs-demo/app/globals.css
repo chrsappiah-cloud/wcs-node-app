@@ -1,0 +1,11 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+  background: radial-gradient(circle at 20% 10%, #172347, #0c1222);
+}
