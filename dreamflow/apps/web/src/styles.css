@@ -1,0 +1,371 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Avenir Next', 'Segoe UI', sans-serif;
+}
+
+.bg-base {
+  @apply relative overflow-x-hidden;
+  background:
+    radial-gradient(1200px 700px at 8% -10%, rgba(34, 197, 94, 0.22), transparent 58%),
+    radial-gradient(1100px 620px at 98% 6%, rgba(249, 115, 22, 0.18), transparent 52%),
+    linear-gradient(160deg, #08111b 0%, #123047 54%, #1c4950 100%);
+}
+
+.dark .bg-base {
+  background:
+    radial-gradient(1200px 700px at 8% -10%, rgba(34, 197, 94, 0.22), transparent 58%),
+    radial-gradient(1100px 620px at 98% 6%, rgba(249, 115, 22, 0.18), transparent 52%),
+    linear-gradient(160deg, #08111b 0%, #123047 54%, #1c4950 100%);
+}
+
+.bg-orb {
+  @apply pointer-events-none absolute h-64 w-64 rounded-full blur-3xl;
+  animation: orbFloat 8s ease-in-out infinite;
+}
+
+.bg-orb-a {
+  @apply -left-24 top-24 bg-emerald-400/30 dark:bg-emerald-400/25;
+}
+
+.bg-orb-b {
+  @apply -right-28 top-48 bg-orange-300/30 dark:bg-amber-300/20;
+}
+
+.text-content {
+  @apply text-slate-100;
+}
+
+.text-content-soft {
+  @apply text-slate-300;
+}
+
+.glass-card {
+  @apply rounded-2xl border border-white/30 bg-white/10 p-5 shadow-glass backdrop-blur-xl dark:border-white/20 dark:bg-white/10;
+}
+
+.cta-primary {
+  @apply inline-flex items-center justify-center rounded-full bg-slate-900 px-5 py-3 text-sm font-bold text-white transition hover:bg-slate-700 dark:bg-emerald-300 dark:text-slate-950 dark:hover:bg-emerald-200;
+}
+
+.cta-secondary {
+  @apply inline-flex items-center justify-center rounded-full border border-white/40 px-5 py-3 text-sm font-semibold transition hover:bg-white/20 dark:hover:bg-white/10;
+}
+
+.form-label {
+  @apply block text-sm font-semibold text-content-soft;
+}
+
+.form-input {
+  @apply mt-2 w-full rounded-xl border border-white/25 bg-white/20 px-4 py-3 text-slate-100 outline-none backdrop-blur placeholder:text-slate-300 focus:border-emerald-300 focus:ring-2 focus:ring-emerald-300/40;
+}
+
+.bg-accent {
+  background-color: #f59e0b;
+}
+
+.promo-banner {
+  @apply fixed left-1/2 top-3 z-50 flex w-[min(95%,980px)] -translate-x-1/2 items-center justify-between rounded-full border border-white/25 bg-slate-900/80 px-5 py-3 text-sm shadow-glass backdrop-blur-xl;
+}
+
+.promo-banner button {
+  @apply rounded-full border border-white/30 px-3 py-1 transition hover:bg-white/10;
+}
+
+.trust-pill {
+  @apply rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-center font-semibold backdrop-blur;
+}
+
+.card-3d {
+  transform-style: preserve-3d;
+  transition: transform 260ms ease, box-shadow 260ms ease;
+}
+
+.card-3d:hover {
+  transform: perspective(900px) rotateX(4deg) rotateY(-4deg) scale(1.02);
+  box-shadow: 0 18px 42px rgba(6, 8, 20, 0.38);
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(24px) scale(0.98);
+  filter: blur(2px);
+  transition: opacity 620ms ease, transform 620ms ease, filter 620ms ease;
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.reveal.is-revealed {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+}
+
+.cta-gradient {
+  @apply inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-bold text-white;
+  background: linear-gradient(95deg, #8b5cf6 0%, #f97316 55%, #10b981 100%);
+  transition: transform 220ms ease, filter 220ms ease;
+}
+
+.cta-gradient:hover {
+  transform: translateY(-2px) scale(1.01);
+  filter: brightness(1.07);
+}
+
+.modal-overlay {
+  @apply fixed inset-0 z-50 flex items-center justify-center bg-slate-950/65 p-5;
+  animation: fadeIn 220ms ease-out both;
+}
+
+.modal-card {
+  @apply w-[min(92vw,640px)] rounded-3xl border border-white/25 bg-slate-900/85 p-8 shadow-glass backdrop-blur-xl;
+  animation: zoomIn 220ms ease-out both;
+}
+
+.route-nav {
+  @apply rounded-2xl border border-white/20 bg-white/5 p-1 backdrop-blur;
+}
+
+.route-pill {
+  @apply rounded-xl px-3 py-2 text-xs font-semibold tracking-wide text-slate-200 transition;
+}
+
+.route-pill:hover {
+  @apply bg-white/10 text-white;
+}
+
+.route-pill-active {
+  @apply bg-white/20 text-white;
+  box-shadow: 0 6px 20px rgba(11, 16, 38, 0.28);
+}
+
+.route-stage {
+  will-change: transform, opacity;
+  animation: pageLift 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.route-stage-forward {
+  animation: pageSlideForward 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.route-stage-backward {
+  animation: pageSlideBackward 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.route-atlas-connector {
+  @apply items-center justify-center gap-2 text-cyan-200/80;
+}
+
+.route-atlas-line {
+  @apply block h-px w-10 bg-gradient-to-r from-cyan-300/20 via-cyan-300/80 to-emerald-300/30;
+}
+
+.route-atlas-arrow {
+  @apply text-lg font-semibold leading-none;
+}
+
+.route-progress {
+  @apply mb-6 grid gap-2 rounded-2xl border border-white/15 bg-white/5 p-3 backdrop-blur;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.route-progress-node {
+  @apply flex items-center gap-2 rounded-xl px-2 py-2 text-xs font-semibold text-slate-300 transition;
+}
+
+.route-progress-node:hover {
+  @apply bg-white/10 text-white;
+}
+
+.route-progress-node.is-active {
+  @apply bg-white/20 text-white;
+}
+
+.route-progress-node.is-visited {
+  @apply text-cyan-200;
+}
+
+.route-progress-dot {
+  @apply h-2 w-2 rounded-full bg-slate-400/70;
+}
+
+.route-progress-node.is-active .route-progress-dot {
+  @apply bg-cyan-300;
+  box-shadow: 0 0 0 5px rgba(34, 211, 238, 0.15);
+}
+
+.route-progress-node.is-visited .route-progress-dot {
+  @apply bg-cyan-400/90;
+}
+
+.route-progress-label {
+  @apply truncate;
+}
+
+.route-handoff {
+  @apply mb-6 grid items-stretch gap-3 rounded-2xl border border-white/15 bg-white/5 p-3 backdrop-blur;
+  grid-template-columns: 1fr minmax(180px, 1.2fr) 1fr;
+}
+
+.route-handoff-block,
+.route-handoff-current {
+  @apply rounded-xl border border-white/15 bg-white/10 px-3 py-3;
+}
+
+.route-handoff-current {
+  @apply relative overflow-hidden;
+  background: linear-gradient(120deg, rgba(34, 211, 238, 0.12), rgba(16, 185, 129, 0.12));
+}
+
+.route-handoff-pulse {
+  @apply pointer-events-none absolute -right-8 -top-8 h-20 w-20 rounded-full bg-cyan-300/20;
+  animation: pulseTravel 2.4s ease-in-out infinite;
+}
+
+.route-handoff-kicker {
+  @apply text-[10px] font-bold uppercase tracking-[0.18em] text-slate-300/75;
+}
+
+.route-handoff-value {
+  @apply mt-1 text-sm font-semibold text-slate-100;
+}
+
+.route-handoff-link {
+  @apply mt-1 inline-flex items-center rounded-full border border-cyan-300/35 bg-cyan-400/10 px-3 py-1 text-sm font-semibold text-cyan-200 transition;
+}
+
+.route-handoff-link:hover {
+  @apply bg-cyan-300/20 text-cyan-100;
+}
+
+.route-link {
+  transition: transform 220ms ease, box-shadow 220ms ease;
+}
+
+.route-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px rgba(4, 8, 28, 0.32);
+}
+
+@keyframes orbFloat {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-16px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pageLift {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.988);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pageSlideForward {
+  from {
+    opacity: 0;
+    transform: translateX(18px) translateY(8px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) translateY(0) scale(1);
+  }
+}
+
+@keyframes pageSlideBackward {
+  from {
+    opacity: 0;
+    transform: translateX(-18px) translateY(8px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) translateY(0) scale(1);
+  }
+}
+
+@keyframes pulseTravel {
+  0% {
+    transform: translate(0, 0) scale(0.92);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translate(-16px, 12px) scale(1.08);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(0, 0) scale(0.92);
+    opacity: 0.4;
+  }
+}
+
+@media (max-width: 860px) {
+  .reveal {
+    transition: opacity 420ms ease, transform 420ms ease, filter 420ms ease;
+  }
+
+  .route-stage,
+  .route-stage-forward,
+  .route-stage-backward {
+    animation-duration: 360ms;
+  }
+
+  .route-progress {
+    grid-template-columns: 1fr;
+  }
+
+  .route-handoff {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route-stage,
+  .reveal,
+  .card-3d,
+  .bg-orb {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}

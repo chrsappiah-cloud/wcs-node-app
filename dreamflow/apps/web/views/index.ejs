@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Healing Arts - World Class Scholars</title>
+<style>
+:root { --primary: #7c3aed; --accent: #10b981; --glow: 0 0 20px rgba(124,58,237,0.5);
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; overflow-x: hidden; }
+.hero { position: relative; height: 100vh; display: grid; place-items: center; text-align: center; }
+.hero h1 { font-size: clamp(2.5rem, 5vw, 4rem); background: linear-gradient(45deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.canvas-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+.content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; max-width: 1200px; margin: 0 auto; padding: 4rem 2rem; }
+.card { background: rgba(255,255,255,0.1); backdrop-filter: blur(20px); border-radius: 20px; padding: 2rem; border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s ease; }
+.card:hover { transform: translateY(-12px) scale(1.02); box-shadow: var(--glow); }
+.profile-card { display: grid; grid-template-columns: 120px 1fr; gap: 1.5rem; align-items: start; }
+.profile-img { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); transition: transform 0.3s ease; }
+.profile-img:hover { transform: scale(1.05) rotate(5deg); }
+.story-particle { position: absolute; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; pointer-events: none; animation: float 3s ease-in-out infinite; }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+@media (max-width: 768px) { .content-grid { grid-template-columns: 1fr; gap: 2rem; } }
+</style>
+</head>
+<body>
+<canvas id="canvas-bg" class="canvas-bg"></canvas>
+<section class="hero">
+<h1>Digital Storytelling<br>for Dementia Care</h1>
+<img src="/images/workshop.jpg" alt="Workshop" style="max-width: 80%; border-radius: 12px; margin-top: 2rem; box-shadow: var(--glow);">
+</section>
+<div class="content-grid">
+<div class="card profile-card">
+<img src="/images/dr-chris.jpg" alt="Dr. Appiah-Thompson" class="profile-img">
+<div>
+<h2 style="color: var(--primary); margin-bottom: 1rem;">Dr. Christopher Appiah-Thompson</h2>
+<p>Founder, World Class Scholars. PhD advocate fusing arts therapy, AI, and equity justice in dementia care innovation.</p>
+<ul style="list-style: none; margin-top: 1rem;">
+<li><a href="https://christopherappiahthompson.link" style="color: var(--accent); text-decoration: none; margin-right: 1rem;">🌐 Portfolio</a></li>
+<li><a href="https://www.linkedin.com/in/christopher-appiah-thompson-a2014045" style="color: var(--accent); text-decoration: none;">💼 LinkedIn</a></li>
+</ul>
+</div>
+</div>
+<div class="card">
+<h2 style="color: var(--primary);">Dementia Care Software</h2>
+<ul style="color: white; line-height: 1.8;">
+<li>🤖 AI companions (Rok Max-style generative art/video)</li>
+<li>🎨 Reminiscence apps with canvas flows</li>
+<li>📊 BPSD predictors via Flutter/Node APIs</li>
+</ul>
+<p style="margin-top: 1rem; font-style: italic;">Built for production: React Native, NestJS, PostgreSQL</p>
+</div>
+</div>
+<script>
+// Complex Canvas Particles (Healing Arts Demo)
+const canvas = document.getElementById('canvas-bg');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+const particles = [];
+for (let i = 0; i < 100; i++) {
+particles.push({
+x: Math.random() * canvas.width,
+y: Math.random() * canvas.height,
+vx: (Math.random() - 0.5) * 0.5,
+vy: (Math.random() - 0.5) * 0.5,
+radius: Math.random() * 3 + 1,
+color: `hsl(${Math.random() * 60 + 200}, 70%, 60%)`
+});
+}
+function animate() {
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+particles.forEach(p => {
+p.x += p.vx; p.y += p.vy;
+if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+ctx.beginPath();
+ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+ctx.fillStyle = p.color;
+ctx.fill();
+});
+requestAnimationFrame(animate);
+}
+animate();
+window.addEventListener('resize', () => {
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+});
+// Hover Animations (GSAP-like)
+document.querySelectorAll('.card').forEach(card => {
+card.addEventListener('mouseenter', () => {
+card.style.animation = 'float 2s ease-in-out infinite';
+});
+card.addEventListener('mouseleave', () => {
+card.style.animation = '';
+});
+});
+</script>
+</body>
+</html>
+    <section class="cta-section">
+      <h2>Start a Collaboration</h2>
+      <p>Interested in healing-centered tech, dementia care innovation, or creative storytelling?</p>
+      <a href="https://christopherappiahthompson.link/connect" target="_blank" class="cta-btn large">Get in Touch</a>
+    </section>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© <%= year %> Dr. Christopher Appiah-Thompson | World Class Scholars</p>
+    <p>🎨 Healing Arts Museum of Code 🎨</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/js/particles.js"></script>
+  <script src="/js/animations.js"></script>
+</body>
+</html>

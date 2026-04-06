@@ -1,0 +1,17 @@
+{
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "@vercel/node@3.2.26"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/v1/(.*)",
+      "destination": "/api/v1/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
