@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Tester | World Class Scholars</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      color: #0c4a6e;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .status-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #ef4444;
+      animation: pulse 2s infinite;
+    }
+
+    .status-indicator.connected {
+      background: #10b981;
+      animation: none;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .panel {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .panel h2 {
+      color: #0c4a6e;
+      font-size: 20px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e0f2fe;
+      padding-bottom: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      color: #334155;
+      font-weight: 500;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: #0c4a6e;
+      box-shadow: 0 0 0 3px rgba(12, 74, 110, 0.1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 14px;
+    }
+
+    .btn-primary {
+      background: #0c4a6e;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #0a3a56;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(12, 74, 110, 0.3);
+    }
+
+    .btn-secondary {
+      background: #e0f2fe;
+      color: #0c4a6e;
+      border: 2px solid #0c4a6e;
+    }
+
+    .btn-secondary:hover {
+      background: #cef1f9;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .response {
+      background: #f1f5f9;
+      border-left: 4px solid #0c4a6e;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      max-height: 300px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #334155;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .response.error {
+      border-left-color: #ef4444;
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .response.success {
+      border-left-color: #10b981;
+      background: #ecfdf5;
+      color: #065f46;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .image-card {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s;
+    }
+
+    .image-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .image-card img {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      background: linear-gradient(135deg, #e0f2fe, #dbeafe);
+    }
+
+    .image-meta {
+      padding: 15px;
+      background: white;
+    }
+
+    .image-meta p {
+      color: #64748b;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #dbeafe;
+      color: #0c4a6e;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .token-display {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 12px;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      word-break: break-all;
+      color: #475569;
+      margin-top: 10px;
+    }
+
+    .info-box {
+      background: #dbeafe;
+      border-left: 4px solid #0c4a6e;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      color: #0c4a6e;
+    }
+
+    .info-box strong {
+      color: #0a3a56;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🚀 World Class Scholars API Tester</h1>
+      <p>Test the hardened backend API with OpenAI integration</p>
+      <div class="status">
+        <div class="status-indicator" id="statusIndicator"></div>
+        <span id="statusText">Connecting to API...</span>
+      </div>
+    </header>
+
+    <div class="panel">
+      <h2>📡 Connection Status</h2>
+      <div class="info-box">
+        <strong>API Base URL:</strong> <code>http://localhost:3000</code>
+      </div>
+      <div id="connectionInfo"></div>
+      <button class="btn-primary" onclick="checkConnection()">Check Connection</button>
+    </div>
+
+    <div class="panel">
+      <h2>🔑 Authentication</h2>
+      <p style="color: #64748b; margin-bottom: 15px;">Get a JWT token for API requests:</p>
+      <button class="btn-primary" onclick="getToken()">Get Auth Token</button>
+      <div id="tokenResponse"></div>
+    </div>
+
+    <div class="panel">
+      <h2>🎨 Generate Images</h2>
+      <div class="info-box">
+        <strong>⚠️  Important:</strong> You need to add your OpenAI API key to the <code>.env</code> file first:
+        <code style="display: block; margin-top: 8px;">OPENAI_API_KEY=sk_...</code>
+        Get one from: <a href="https://platform.openai.com/api-keys" target="_blank" style="color: #0c4a6e; text-decoration: underline;">platform.openai.com/api-keys</a>
+      </div>
+
+      <form id="imageForm">
+        <div class="form-group">
+          <label for="prompt">Image Prompt *</label>
+          <textarea id="prompt" placeholder="Describe the image you want to generate..." required>A vibrant dinosaur with scales of gold and emerald green, standing in a misty forest at dawn</textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="style">Style</label>
+          <select id="style">
+            <option value="realistic">Realistic</option>
+            <option value="artistic">Artistic</option>
+            <option value="cartoon">Cartoon</option>
+            <option value="sketch">Sketch</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="quantity">Quantity (1-4)</label>
+          <input type="number" id="quantity" min="1" max="4" value="1">
+        </div>
+
+        <div class="button-group">
+          <button type="button" class="btn-primary" onclick="generateImages()">Generate Images</button>
+          <button type="button" class="btn-secondary" onclick="clearForm()">Clear</button>
+        </div>
+      </form>
+
+      <div id="generationResponse"></div>
+      <div id="imageGrid" class="grid"></div>
+    </div>
+
+    <div class="panel">
+      <h2>📊 Cache Management</h2>
+      <p style="color: #64748b; margin-bottom: 15px;">Generated images are cached for 24 hours to save API costs</p>
+      <button class="btn-primary" onclick="clearCache()">Clear Cache</button>
+      <div id="cacheResponse"></div>
+    </div>
+  </div>
+
+  <script src="api-client.js"></script>
+  <script>
+    const client = new WCSApiClient();
+
+    async function init() {
+      await client.init();
+      checkConnection();
+    }
+
+    async function checkConnection() {
+      try {
+        const response = await fetch('http://localhost:3000/health');
+        const data = await response.json();
+        
+        const indicator = document.getElementById('statusIndicator');
+        const statusText = document.getElementById('statusText');
+        const info = document.getElementById('connectionInfo');
+
+        if (response.ok) {
+          indicator.classList.add('connected');
+          statusText.textContent = '✅ Connected to API server';
+          info.innerHTML = `
+            <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-top: 10px; font-size: 13px; color: #475569;">
+              <p><strong>Status:</strong> ${data.status}</p>
+              <p><strong>Environment:</strong> ${data.environment}</p>
+              <p><strong>Timestamp:</strong> ${new Date(data.timestamp).toLocaleString()}</p>
+            </div>
+          `;
+        } else {
+          throw new Error('Server returned non-200 status');
+        }
+      } catch (error) {
+        document.getElementById('statusIndicator').classList.remove('connected');
+        document.getElementById('statusText').textContent = '❌ Cannot connect to API server';
+        document.getElementById('connectionInfo').innerHTML = `<div style="color: #991b1b; margin-top: 10px;">Error: ${error.message}</div>`;
+      }
+    }
+
+    async function getToken() {
+      try {
+        const response = await fetch('http://localhost:3000/api/auth/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        const data = await response.json();
+        
+        const element = document.getElementById('tokenResponse');
+        element.innerHTML = `
+          <div class="response success" style="margin-top: 15px;">
+            ✅ Token generated successfully
+            <div class="token-display">${data.token}</div>
+          </div>
+        `;
+      } catch (error) {
+        document.getElementById('tokenResponse').innerHTML = `
+          <div class="response error" style="margin-top: 15px;">❌ Error: ${error.message}</div>
+        `;
+      }
+    }
+
+    async function generateImages() {
+      const prompt = document.getElementById('prompt').value;
+      const style = document.getElementById('style').value;
+      const quantity = parseInt(document.getElementById('quantity').value);
+
+      if (!prompt.trim()) {
+        alert('Please enter an image prompt');
+        return;
+      }
+
+      const responseEl = document.getElementById('generationResponse');
+      responseEl.innerHTML = '<div class="response">⏳ Generating images...</div>';
+
+      const result = await client.generateImages({ prompt, style, quantity });
+      
+      if (result && result.success) {
+        responseEl.innerHTML = `
+          <div class="response success">
+            ✅ ${result.message}
+            ${result.cached ? '📦 Retrieved from cache' : '🆕 Fresh generation'}
+          </div>
+        `;
+
+        // Display images
+        const grid = document.getElementById('imageGrid');
+        grid.innerHTML = result.images.map(img => `
+          <div class="image-card">
+            <img src="${img.url}" alt="${img.alt}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22250%22 height=%22250%22%3E%3Crect fill=%22%23dbeafe%22 width=%22250%22 height=%22250%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%230c4a6e%22 font-family=%22sans-serif%22%3E(OpenAI API Key Required)%3C/text%3E%3C/svg%3E'">
+            <div class="image-meta">
+              <p><strong>Prompt:</strong> ${img.alt}</p>
+              <p><strong>Generated:</strong> ${new Date(img.generated_at).toLocaleString()}</p>
+              <div style="margin-top: 8px;">
+                <span class="badge">${style}</span>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      } else {
+        responseEl.innerHTML = `<div class="response error">❌ Generation failed. Check that your OpenAI API key is set in .env</div>`;
+      }
+    }
+
+    async function clearCache() {
+      const result = await client.clearCache();
+      const element = document.getElementById('cacheResponse');
+      
+      if (result) {
+        element.innerHTML = '<div class="response success" style="margin-top: 15px;">✅ Cache cleared successfully</div>';
+      } else {
+        element.innerHTML = '<div class="response error" style="margin-top: 15px;">❌ Failed to clear cache</div>';
+      }
+    }
+
+    function clearForm() {
+      document.getElementById('imageForm').reset();
+      document.getElementById('imageGrid').innerHTML = '';
+      document.getElementById('generationResponse').innerHTML = '';
+    }
+
+    // Initialize on page load
+    init();
+  </script>
+</body>
+</html>
