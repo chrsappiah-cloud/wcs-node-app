@@ -4,7 +4,10 @@ const NodeCache = require('node-cache');
 const config = require('../config/environment');
 const { authMiddleware } = require('../middleware/auth');
 const { imageGenerationLimiter } = require('../middleware/rateLimiter');
-const { validateImageGeneration, handleValidationErrors } = require('../middleware/validation');
+const {
+  validateImageGeneration,
+  handleValidationErrors,
+} = require('../middleware/validation');
 
 const router = express.Router();
 const imageCache = new NodeCache({ stdTTL: config.imageGeneration.cacheTtl });
@@ -13,7 +16,8 @@ const imageCache = new NodeCache({ stdTTL: config.imageGeneration.cacheTtl });
  * Generate images using OpenAI DALL-E
  * POST /api/images/generate
  */
-router.post('/generate', 
+router.post(
+  '/generate',
   authMiddleware,
   imageGenerationLimiter,
   validateImageGeneration,
@@ -37,20 +41,26 @@ router.post('/generate',
       // Generate image with OpenAI
       const enhancedPrompt = `${prompt}. Style: ${style}. High quality, detailed, professional.`;
 
-      const response = await axios.post('https://api.openai.com/v1/images/generations', {
+      // DALL-E 3 specific configuration
+      const requestBody = {
         model: config.imageGeneration.model,
         prompt: enhancedPrompt,
-        n: quantity,
         size: config.imageGeneration.size,
-        quality: config.imageGeneration.quality,
-      }, {
-        headers: {
-          'Authorization': `Bearer ${config.openai.apiKey}`,
-          'Content-Type': 'application/json',
-        },
-      });
+        n: 1, // DALL-E 3 only supports n=1
+      };
 
-      const images = response.data.data.map(img => ({
+      const response = await axios.post(
+        'https://api.openai.com/v1/images/generations',
+        requestBody,
+        {
+          headers: {
+            Authorization: `Bearer ${config.openai.apiKey}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+
+      const images = response.data.data.map((img) => ({
         url: img.url,
         alt: prompt,
         generated_at: new Date().toISOString(),
@@ -66,10 +76,15 @@ router.post('/generate',
         cached: false,
       });
     } catch (error) {
-      console.error('Image generation error:', error.response?.data || error.message);
+      console.error(
+        'Image generation error:',
+        error.response?.data || error.message,
+      );
 
       if (error.response?.status === 429) {
-        return res.status(429).json({ error: 'OpenAI rate limit exceeded. Try again later.' });
+        return res
+          .status(429)
+          .json({ error: 'OpenAI rate limit exceeded. Try again later.' });
       }
 
       res.status(500).json({
@@ -77,7 +92,7 @@ router.post('/generate',
         message: config.isDevelopment ? error.message : 'Internal server error',
       });
     }
-  }
+  },
 );
 
 /**
@@ -109,9 +124,9 @@ router.delete('/cache', authMiddleware, (req, res) => {
   try {
     // In production, verify admin role here
     imageCache.flushAll();
-    res.json({ 
-      success: true, 
-      message: 'Image cache cleared' 
+    res.json({
+      success: true,
+      message: 'Image cache cleared',
     });
   } catch (error) {
     res.status(500).json({ error: 'Failed to clear cache' });

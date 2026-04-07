@@ -25,6 +25,7 @@ function initializeImageGenerator() {
   const styleSelect = document.getElementById('imageStyle');
   const statusDiv = document.getElementById('generationStatus');
   const imagesGrid = document.getElementById('generatedImages');
+  const imageUpload = document.getElementById('imageUpload');
 
   if (!generateBtn) return;
 
@@ -34,9 +35,10 @@ function initializeImageGenerator() {
   generateBtn.addEventListener('click', async function() {
     const prompt = promptInput.value.trim();
     const style = styleSelect.value;
+    const file = imageUpload.files && imageUpload.files[0];
 
-    if (!prompt) {
-      showStatus('Please enter an image description', 'error');
+    if (!prompt && !file) {
+      showStatus('Please enter an image description or upload an image', 'error');
       promptInput.focus();
       return;
     }
@@ -56,11 +58,20 @@ function initializeImageGenerator() {
         }
       }
 
+      let imageBase64 = null;
+      let mimeType = null;
+      if (file) {
+        mimeType = file.type;
+        imageBase64 = await toBase64(file);
+      }
+
       // Generate image
       const result = await apiClient.generateImages({
         prompt: prompt,
         style: style,
-        quantity: 1
+        quantity: 1,
+        imageBase64: imageBase64,
+        mimeType: mimeType
       });
 
       if (result && result.success) {
@@ -79,6 +90,15 @@ function initializeImageGenerator() {
       generateBtn.textContent = 'Generate Image';
     }
   });
+
+  function toBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
 
   /**
    * Show status message

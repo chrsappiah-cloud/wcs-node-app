@@ -3,7 +3,7 @@
  * Simple helper functions to interact with the backend API
  */
 
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = 'http://localhost:3000/v1';
 
 class WCSApiClient {
   constructor() {
@@ -47,17 +47,22 @@ class WCSApiClient {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}/images/generate`, {
+
+      const payload = {
+        prompt: options.prompt || '',
+      };
+      if (options.imageBase64) {
+        payload.imageBase64 = options.imageBase64;
+        if (options.mimeType) payload.mimeType = options.mimeType;
+      }
+
+      const response = await fetch(`${this.baseUrl}/media-support/image/analyze`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${this.token}`,
         },
-        body: JSON.stringify({
-          prompt: options.prompt || '',
-          style: options.style || 'realistic',
-          quantity: options.quantity || 1,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {

@@ -9,9 +9,10 @@
 
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
+import * as fs from 'fs';
 import { AppModule } from './app.module';
 import * as helmet from 'helmet';
-import * as rateLimit from 'express-rate-limit';
+import rateLimit from 'express-rate-limit';
 
 const expressRuntime = require('express') as {
   json: (options: { limit: string }) => unknown;
@@ -22,9 +23,26 @@ type SecurityHeaderResponse = {
   setHeader: (name: string, value: string) => void;
 };
 
+const LOG_FILE_PATH = 'logs/app.log';
+function logToFile(message: string) {
+  fs.mkdirSync('logs', { recursive: true });
+  fs.appendFileSync(LOG_FILE_PATH, message + '\n');
+}
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const logger = new Logger('Bootstrap');
+  // Patch logger to also write to file
+  const origLog = logger.log.bind(logger);
+  logger.log = (msg) => {
+    origLog(msg);
+    logToFile(`[LOG] ${msg}`);
+  };
+  const origError = logger.error.bind(logger);
+  logger.error = (msg, trace) => {
+    origError(msg, trace);
+    logToFile(`[ERROR] ${msg}${trace ? ' ' + trace : ''}`);
+  };
   const bodyLimit = process.env.API_BODY_LIMIT || '8mb';
   const isProduction = process.env.NODE_ENV === 'production';
 
@@ -117,6 +135,7 @@ async function bootstrap() {
 }
 
 bootstrap().catch(err => {
+  logToFile('❌ Bootstrap error: ' + err);
   console.error('❌ Bootstrap error:', err);
   process.exit(1);
 });
