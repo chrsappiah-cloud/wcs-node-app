@@ -1,9 +1,9 @@
 /*
  * GeoWCS NestJS API - Bootstrap
- * 
+ *
  * Copyright © 2026 World Class Scholars. All rights reserved.
  * Developed under the leadership of Dr. Christopher Appiah-Thompson
- * 
+ *
  * Enterprise-grade real-time safety platform backend.
  */
 
@@ -51,27 +51,29 @@ async function bootstrap() {
   app.use(expressRuntime.urlencoded({ extended: false, limit: bodyLimit }));
 
   // Helmet security headers with enhanced CSP
-  app.use(helmet.default({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        imgSrc: ["'self'", 'data:', 'https:'],
-        connectSrc: ["'self'", process.env.CORS_ORIGIN || '*'],
-        fontSrc: ["'self'"],
-        objectSrc: ["'none'"],
-        mediaSrc: ["'self'"],
-        frameSrc: ["'none'"],
+  app.use(
+    helmet.default({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'", "'unsafe-inline'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          imgSrc: ["'self'", 'data:', 'https:'],
+          connectSrc: ["'self'", process.env.CORS_ORIGIN || '*'],
+          fontSrc: ["'self'"],
+          objectSrc: ["'none'"],
+          mediaSrc: ["'self'"],
+          frameSrc: ["'none'"],
+        },
       },
-    },
-    hsts: {
-      maxAge: isProduction ? 31536000 : 3600, // 1 year in production
-      includeSubDomains: true,
-      preload: isProduction,
-    },
-    referrerPolicy: { policy: 'no-referrer' },
-  }));
+      hsts: {
+        maxAge: isProduction ? 31536000 : 3600, // 1 year in production
+        includeSubDomains: true,
+        preload: isProduction,
+      },
+      referrerPolicy: { policy: 'no-referrer' },
+    }),
+  );
 
   // Rate limiting
   const limiter = rateLimit({
@@ -89,16 +91,21 @@ async function bootstrap() {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('X-XSS-Protection', '1; mode=block');
-    res.setHeader('Strict-Transport-Security', isProduction ? 'max-age=31536000; includeSubDomains; preload' : 'max-age=3600');
+    res.setHeader(
+      'Strict-Transport-Security',
+      isProduction
+        ? 'max-age=31536000; includeSubDomains; preload'
+        : 'max-age=3600',
+    );
     res.setHeader('X-DNS-Prefetch-Control', 'off');
     res.setHeader('X-Permitted-Cross-Domain-Policies', 'none');
     next();
   });
 
   // CORS with restricted origins
-  const corsOrigins = process.env.CORS_ORIGIN 
-    ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
-    : isProduction 
+  const corsOrigins = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',').map((origin) => origin.trim())
+    : isProduction
       ? [] // Deny all in production if not explicitly configured
       : [/^http:\/\/localhost:\d+$/, /^http:\/\/127\.0\.0\.1:\d+$/]; // Allow localhost in dev
 
@@ -117,11 +124,11 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
       transform: true,
       transformOptions: {
-        enableImplicitConversion: true
+        enableImplicitConversion: true,
       },
       skipMissingProperties: false,
       skipNullProperties: false,
-    })
+    }),
   );
 
   app.setGlobalPrefix('v1');
@@ -130,11 +137,13 @@ async function bootstrap() {
   await app.listen(port, () => {
     logger.log(`🚀 Server running on port ${port}`);
     logger.log(`📋 Environment: ${process.env.NODE_ENV || 'development'}`);
-    logger.log(`🔒 CORS Origins: ${Array.isArray(corsOrigins) ? corsOrigins.join(', ') : 'dynamic'}`);
+    logger.log(
+      `🔒 CORS Origins: ${Array.isArray(corsOrigins) ? corsOrigins.join(', ') : 'dynamic'}`,
+    );
   });
 }
 
-bootstrap().catch(err => {
+bootstrap().catch((err) => {
   logToFile('❌ Bootstrap error: ' + err);
   console.error('❌ Bootstrap error:', err);
   process.exit(1);

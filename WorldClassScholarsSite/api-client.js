@@ -20,9 +20,9 @@ class WCSApiClient {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });
-      
+
       if (!response.ok) throw new Error('Failed to get token');
-      
+
       const data = await response.json();
       this.token = data.token;
       console.log('✅ API Client initialized with token');
@@ -47,7 +47,6 @@ class WCSApiClient {
     }
 
     try {
-
       const payload = {
         prompt: options.prompt || '',
       };
@@ -56,14 +55,17 @@ class WCSApiClient {
         if (options.mimeType) payload.mimeType = options.mimeType;
       }
 
-      const response = await fetch(`${this.baseUrl}/media-support/image/analyze`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.token}`,
+      const response = await fetch(
+        `${this.baseUrl}/media-support/image/analyze`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.token}`,
+          },
+          body: JSON.stringify(payload),
         },
-        body: JSON.stringify(payload),
-      });
+      );
 
       if (!response.ok) {
         const error = await response.json();
@@ -91,11 +93,11 @@ class WCSApiClient {
 
     try {
       const response = await fetch(`${this.baseUrl}/images/cache/${key}`, {
-        headers: { 'Authorization': `Bearer ${this.token}` },
+        headers: { Authorization: `Bearer ${this.token}` },
       });
 
       if (!response.ok) throw new Error('Cache miss');
-      
+
       const data = await response.json();
       console.log('✅ Retrieved cached images');
       return data;
@@ -117,11 +119,11 @@ class WCSApiClient {
     try {
       const response = await fetch(`${this.baseUrl}/images/cache`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${this.token}` },
+        headers: { Authorization: `Bearer ${this.token}` },
       });
 
       if (!response.ok) throw new Error('Failed to clear cache');
-      
+
       console.log('✅ Cache cleared');
       return true;
     } catch (error) {

@@ -32,13 +32,16 @@ function initializeImageGenerator() {
   // Initialize API client
   const apiClient = new WCSApiClient();
 
-  generateBtn.addEventListener('click', async function() {
+  generateBtn.addEventListener('click', async function () {
     const prompt = promptInput.value.trim();
     const style = styleSelect.value;
     const file = imageUpload.files && imageUpload.files[0];
 
     if (!prompt && !file) {
-      showStatus('Please enter an image description or upload an image', 'error');
+      showStatus(
+        'Please enter an image description or upload an image',
+        'error',
+      );
       promptInput.focus();
       return;
     }
@@ -71,7 +74,7 @@ function initializeImageGenerator() {
         style: style,
         quantity: 1,
         imageBase64: imageBase64,
-        mimeType: mimeType
+        mimeType: mimeType,
       });
 
       if (result && result.success) {
@@ -80,7 +83,6 @@ function initializeImageGenerator() {
       } else {
         throw new Error(result?.message || 'Image generation failed');
       }
-
     } catch (error) {
       console.error('Image generation error:', error);
       showStatus(`Error: ${error.message}`, 'error');
@@ -130,7 +132,7 @@ function initializeImageGenerator() {
   }
 
   // Add enter key support for prompt input
-  promptInput.addEventListener('keypress', function(e) {
+  promptInput.addEventListener('keypress', function (e) {
     if (e.key === 'Enter' && !generateBtn.disabled) {
       generateBtn.click();
     }
