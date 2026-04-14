@@ -1,3 +1,4 @@
+// Copyright (c) 2026 World Class Scholars, led by Dr Christopher Appiah-Thompson. All rights reserved.
 import "./globals.css";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
